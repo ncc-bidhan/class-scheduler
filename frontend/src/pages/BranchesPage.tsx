@@ -18,6 +18,7 @@ import {
   Box,
   Divider,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import {
   Edit as IconEdit,
   Delete as IconTrash,
@@ -44,6 +45,7 @@ const modalStyle = {
 };
 
 export function BranchesPage() {
+  const navigate = useNavigate();
   const [opened, setOpened] = useState(false);
   const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
   const [formData, setFormData] = useState({
@@ -164,7 +166,12 @@ export function BranchesPage() {
           </TableHead>
           <TableBody>
             {branchesResponse?.data.map((branch) => (
-              <TableRow key={branch._id} hover>
+              <TableRow
+                key={branch._id}
+                hover
+                onClick={() => navigate(`/branches/${branch._id}`)}
+                sx={{ cursor: "pointer" }}
+              >
                 <TableCell>{branch.name}</TableCell>
                 <TableCell>{branch.address || "-"}</TableCell>
                 <TableCell>{branch.phone || "-"}</TableCell>
@@ -173,13 +180,19 @@ export function BranchesPage() {
                   <Stack direction="row" spacing={1} justifyContent="flex-end">
                     <IconButton
                       color="primary"
-                      onClick={() => handleOpenModal(branch)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenModal(branch);
+                      }}
                     >
                       <IconEdit fontSize="small" />
                     </IconButton>
                     <IconButton
                       color="error"
-                      onClick={() => handleDelete(branch._id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(branch._id);
+                      }}
                     >
                       <IconTrash fontSize="small" />
                     </IconButton>

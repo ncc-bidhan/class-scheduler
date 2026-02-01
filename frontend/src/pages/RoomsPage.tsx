@@ -19,6 +19,7 @@ import {
   Divider,
   MenuItem,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import {
   Edit as IconEdit,
   Delete as IconTrash,
@@ -46,6 +47,7 @@ const modalStyle = {
 };
 
 export function RoomsPage() {
+  const navigate = useNavigate();
   const [opened, setOpened] = useState(false);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
   const [formData, setFormData] = useState({
@@ -169,7 +171,12 @@ export function RoomsPage() {
                 (b) => b._id === room.branchId,
               );
               return (
-                <TableRow key={room._id} hover>
+                <TableRow
+                  key={room._id}
+                  hover
+                  onClick={() => navigate(`/rooms/${room._id}`)}
+                  sx={{ cursor: "pointer" }}
+                >
                   <TableCell>{room.name}</TableCell>
                   <TableCell>{branch?.name || room.branchId}</TableCell>
                   <TableCell>{room.capacity || "-"}</TableCell>
@@ -181,13 +188,19 @@ export function RoomsPage() {
                     >
                       <IconButton
                         color="primary"
-                        onClick={() => handleOpenModal(room)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenModal(room);
+                        }}
                       >
                         <IconEdit fontSize="small" />
                       </IconButton>
                       <IconButton
                         color="error"
-                        onClick={() => handleDelete(room._id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(room._id);
+                        }}
                       >
                         <IconTrash fontSize="small" />
                       </IconButton>
@@ -241,7 +254,7 @@ export function RoomsPage() {
                 {branchesResponse?.data.map((branch) => (
                   <MenuItem key={branch._id} value={branch._id}>
                     {branch.name}
-                  </MenuItem> 
+                  </MenuItem>
                 ))}
               </TextField>
               <TextField

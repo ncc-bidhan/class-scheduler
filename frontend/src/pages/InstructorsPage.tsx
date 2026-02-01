@@ -19,6 +19,7 @@ import {
   Divider,
   MenuItem,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import {
   Edit as IconEdit,
   Delete as IconTrash,
@@ -46,6 +47,7 @@ const modalStyle = {
 };
 
 export function InstructorsPage() {
+  const navigate = useNavigate();
   const [opened, setOpened] = useState(false);
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(
     null,
@@ -173,7 +175,12 @@ export function InstructorsPage() {
           </TableHead>
           <TableBody>
             {instructorsResponse?.data.map((instructor) => (
-              <TableRow key={instructor._id} hover>
+              <TableRow
+                key={instructor._id}
+                hover
+                onClick={() => navigate(`/instructors/${instructor._id}`)}
+                sx={{ cursor: "pointer" }}
+              >
                 <TableCell>{instructor.name}</TableCell>
                 <TableCell>{instructor.bio || "-"}</TableCell>
                 <TableCell>
@@ -189,13 +196,19 @@ export function InstructorsPage() {
                   <Stack direction="row" spacing={1} justifyContent="flex-end">
                     <IconButton
                       color="primary"
-                      onClick={() => handleOpenModal(instructor)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenModal(instructor);
+                      }}
                     >
                       <IconEdit fontSize="small" />
                     </IconButton>
                     <IconButton
                       color="error"
-                      onClick={() => handleDelete(instructor._id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(instructor._id);
+                      }}
                     >
                       <IconTrash fontSize="small" />
                     </IconButton>
