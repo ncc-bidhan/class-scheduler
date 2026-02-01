@@ -187,6 +187,7 @@ export const occurrencesQuerySchema = z
     branchId: objectIdSchema.optional(),
     instructorId: objectIdSchema.optional(),
     roomId: objectIdSchema.optional(),
+    search: z.string().optional(),
   })
   .superRefine((val, ctx) => {
     if (val.from >= val.to) {

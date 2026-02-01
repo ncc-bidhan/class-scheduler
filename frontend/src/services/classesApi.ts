@@ -7,6 +7,7 @@ export interface GetOccurrencesArgs {
   branchId?: string;
   instructorId?: string;
   roomId?: string;
+  search?: string;
 }
 
 export const classesApi = api.injectEndpoints({

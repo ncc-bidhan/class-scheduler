@@ -43,6 +43,18 @@ const CalendarPage: React.FC = () => {
     "calendar",
   );
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search]);
+
   const [currentDate, setCurrentDate] = useState(DateTime.now());
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -82,20 +94,16 @@ const CalendarPage: React.FC = () => {
     isFetching,
     error,
     refetch,
-  } = useGetOccurrencesQuery(dateRange);
+  } = useGetOccurrencesQuery({
+    ...dateRange,
+    search: debouncedSearch || undefined,
+  });
 
   const occurrences = useMemo(() => {
-    const data = response?.data || [];
-    if (!search) return data;
+    return response?.data || [];
+  }, [response]);
 
-    const searchLower = search.toLowerCase();
-    return data.filter(
-      (occ) =>
-        occ.className?.toLowerCase().includes(searchLower) ||
-        occ.instructorName?.toLowerCase().includes(searchLower) ||
-        occ.roomName?.toLowerCase().includes(searchLower),
-    );
-  }, [response, search]);
+  const showLoading = isLoading || (isFetching && occurrences.length === 0);
 
   const handleViewChange = (
     _event: React.MouseEvent<HTMLElement>,
@@ -279,7 +287,7 @@ const CalendarPage: React.FC = () => {
             <IconButton
               size="small"
               onClick={() => handleNavigate("prev")}
-              disabled={isLoading}
+              disabled={isFetching}
               sx={{ bgcolor: "action.hover" }}
             >
               <ChevronLeftIcon fontSize="small" />
@@ -288,7 +296,7 @@ const CalendarPage: React.FC = () => {
               variant="outlined"
               size="small"
               onClick={() => handleNavigate("today")}
-              disabled={isLoading}
+              disabled={isFetching}
               sx={{ px: 2, textTransform: "none" }}
             >
               Today
@@ -296,7 +304,7 @@ const CalendarPage: React.FC = () => {
             <IconButton
               size="small"
               onClick={() => handleNavigate("next")}
-              disabled={isLoading}
+              disabled={isFetching}
               sx={{ bgcolor: "action.hover" }}
             >
               <ChevronRightIcon fontSize="small" />
@@ -332,7 +340,7 @@ const CalendarPage: React.FC = () => {
               exclusive
               onChange={handleDisplayModeChange}
               size="small"
-              disabled={isLoading}
+              disabled={isFetching}
               sx={{
                 bgcolor: "action.hover",
                 p: 0.5,
@@ -367,7 +375,7 @@ const CalendarPage: React.FC = () => {
               exclusive
               onChange={handleViewChange}
               size="small"
-              disabled={isLoading}
+              disabled={isFetching}
               fullWidth={isMobile}
               sx={{
                 bgcolor: "action.hover",
@@ -412,7 +420,7 @@ const CalendarPage: React.FC = () => {
           <AlertTitle>Error Loading Schedule</AlertTitle>
           There was an error fetching the class occurrences. Please try again.
         </Alert>
-      ) : isLoading ? (
+      ) : showLoading ? (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Skeleton
             variant="rectangular"

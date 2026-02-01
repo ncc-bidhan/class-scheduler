@@ -8,6 +8,7 @@ type OccurrenceQuery = {
   branchId?: string;
   instructorId?: string;
   roomId?: string;
+  search?: string;
 };
 
 export type FieldError = { field: string; message: string };
@@ -143,6 +144,13 @@ export const getOccurrences = async (
   if (query.branchId) filter.branchId = query.branchId;
   if (query.instructorId) filter.instructorId = query.instructorId;
   if (query.roomId) filter.roomId = query.roomId;
+
+  if (query.search && query.search.trim()) {
+    const escapedSearch = query.search
+      .trim()
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    filter.name = { $regex: escapedSearch, $options: "i" };
+  }
 
   const classes = (await Class.find(filter)
     .populate("instructorId")
