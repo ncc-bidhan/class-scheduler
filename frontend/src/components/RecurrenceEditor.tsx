@@ -137,7 +137,15 @@ const RecurrenceEditor: React.FC<RecurrenceEditorProps> = ({
         </IconButton>
       </Box>
       {slots.map((slot, idx) => (
-        <Box key={idx} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box
+          key={idx}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: { xs: 0.5, sm: 1 },
+            flexWrap: { xs: "wrap", sm: "nowrap" },
+          }}
+        >
           <TextField
             type="time"
             size="small"
@@ -152,8 +160,11 @@ const RecurrenceEditor: React.FC<RecurrenceEditorProps> = ({
               )
             }
             inputProps={{ step: 300 }}
+            sx={{ flex: { xs: 1, sm: "initial" } }}
           />
-          <Typography>-</Typography>
+          <Typography sx={{ display: { xs: "none", sm: "block" } }}>
+            -
+          </Typography>
           <TextField
             type="time"
             size="small"
@@ -162,12 +173,14 @@ const RecurrenceEditor: React.FC<RecurrenceEditorProps> = ({
               handleSlotChange(idx, "endTime", e.target.value, slots, setTarget)
             }
             inputProps={{ step: 300 }}
+            sx={{ flex: { xs: 1, sm: "initial" } }}
           />
           <IconButton
             size="small"
             color="error"
             disabled={slots.length <= 1}
             onClick={() => handleRemoveTimeSlot(idx, slots, setTarget)}
+            sx={{ ml: { xs: "auto", sm: 0 } }}
           >
             <DeleteIcon fontSize="small" />
           </IconButton>
@@ -286,13 +299,27 @@ const RecurrenceEditor: React.FC<RecurrenceEditorProps> = ({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          alignItems: { xs: "flex-start", sm: "center" },
+          gap: 2,
+        }}
+      >
         <Typography variant="subtitle2">Frequency:</Typography>
         <ToggleButtonGroup
           value={freq}
           exclusive
           size="small"
+          fullWidth
           onChange={(_, val) => val && setFreq(val)}
+          sx={{
+            flexWrap: { xs: "wrap", sm: "nowrap" },
+            "& .MuiToggleButton-root": {
+              flex: { xs: 1, sm: "initial" },
+            },
+          }}
         >
           <ToggleButton value="daily">Daily</ToggleButton>
           <ToggleButton value="weekly">Weekly</ToggleButton>

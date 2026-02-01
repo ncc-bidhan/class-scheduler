@@ -38,10 +38,10 @@ const modalStyle = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: { xs: "90%", sm: 400 },
   bgcolor: "background.paper",
   boxShadow: 24,
-  p: 4,
+  p: { xs: 2, sm: 4 },
   borderRadius: 2,
 };
 
@@ -124,22 +124,30 @@ export function RoomsPage() {
     );
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
       <Box
         sx={{
           display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: { xs: "flex-start", sm: "center" },
+          gap: 2,
           mb: 4,
         }}
       >
-        <Typography variant="h4" fontWeight="bold">
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{ fontSize: { xs: "1.75rem", md: "2.125rem" } }}
+        >
           Manage Rooms
         </Typography>
         <Button
           variant="contained"
           startIcon={<IconPlus />}
           onClick={() => handleOpenModal()}
+          fullWidth={false}
+          sx={{ width: { xs: "100%", sm: "auto" } }}
         >
           Add Room
         </Button>

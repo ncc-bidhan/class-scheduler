@@ -14,6 +14,8 @@ import {
   Skeleton,
   Alert,
   AlertTitle,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -29,6 +31,8 @@ import CreateClassModal from "../components/CreateClassModal";
 import { useGetOccurrencesQuery } from "../services/classesApi";
 
 const CalendarPage: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [view, setView] = useState<"day" | "week" | "month">("week");
   const [search, setSearch] = useState("");
   const [currentDate, setCurrentDate] = useState(DateTime.now());
@@ -125,8 +129,8 @@ const CalendarPage: React.FC = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: { md: "center" },
+          flexDirection: { xs: "column", sm: "row" },
+          alignItems: { sm: "center" },
           justifyContent: "space-between",
           gap: 2,
         }}
@@ -139,23 +143,37 @@ const CalendarPage: React.FC = () => {
               display: "flex",
               alignItems: "center",
               gap: 1,
+              fontSize: { xs: "1.75rem", md: "2.125rem" },
             }}
           >
             Class Schedule
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ fontSize: { xs: "0.875rem", md: "1rem" } }}
+          >
             Manage and view all upcoming class occurrences.
           </Typography>
         </Box>
 
-        <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{
+            alignItems: "center",
+            width: { xs: "100%", sm: "auto" },
+            justifyContent: { xs: "space-between", sm: "flex-end" },
+          }}
+        >
           <TextField
             size="small"
             placeholder="Search classes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             sx={{
-              width: { xs: "100%", md: 250 },
+              width: { xs: "100%", sm: 200, md: 250 },
+              display: { xs: "none", sm: "block" }, // Hide search on mobile header, maybe move it elsewhere
             }}
             InputProps={{
               startAdornment: (
@@ -170,11 +188,35 @@ const CalendarPage: React.FC = () => {
             startIcon={<AddIcon />}
             disableElevation
             onClick={() => setIsModalOpen(true)}
-            sx={{ textTransform: "none", fontWeight: "bold", px: 3 }}
+            fullWidth={false}
+            sx={{
+              textTransform: "none",
+              fontWeight: "bold",
+              px: { xs: 2, md: 3 },
+              whiteSpace: "nowrap",
+            }}
           >
             Create Class
           </Button>
         </Stack>
+      </Box>
+
+      {/* Mobile Search - only visible on xs */}
+      <Box sx={{ display: { xs: "block", sm: "none" } }}>
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search classes..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon color="action" />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Box>
 
       {/* Navigation & Controls Section */}
@@ -191,13 +233,21 @@ const CalendarPage: React.FC = () => {
         <Box
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", md: "row" },
+            flexDirection: { xs: "column", sm: "row" },
             justifyContent: "space-between",
             alignItems: "center",
             gap: 2,
           }}
         >
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              alignItems: "center",
+              width: { xs: "100%", sm: "auto" },
+              justifyContent: { xs: "center", sm: "flex-start" },
+            }}
+          >
             <IconButton
               size="small"
               onClick={() => handleNavigate("prev")}
@@ -225,9 +275,15 @@ const CalendarPage: React.FC = () => {
             </IconButton>
             <Typography
               variant="h6"
-              sx={{ ml: 2, fontWeight: "semibold", color: "text.primary" }}
+              sx={{
+                ml: { xs: 1, sm: 2 },
+                fontWeight: "semibold",
+                color: "text.primary",
+                fontSize: { xs: "1rem", sm: "1.25rem" },
+                whiteSpace: "nowrap",
+              }}
             >
-              {isLoading ? <Skeleton width={150} /> : getHeaderTitle()}
+              {isLoading ? <Skeleton width={100} /> : getHeaderTitle()}
             </Typography>
             {isFetching && !isLoading && (
               <RefreshIcon
@@ -244,13 +300,16 @@ const CalendarPage: React.FC = () => {
             onChange={handleViewChange}
             size="small"
             disabled={isLoading}
+            fullWidth={isMobile}
             sx={{
               bgcolor: "action.hover",
               p: 0.5,
               borderRadius: 2,
+              width: { xs: "100%", sm: "auto" },
               "& .MuiToggleButton-root": {
                 border: "none",
-                px: 2,
+                flex: { xs: 1, sm: "initial" },
+                px: { xs: 1, sm: 2 },
                 borderRadius: 1.5,
                 "&.Mui-selected": {
                   bgcolor: "primary.main",

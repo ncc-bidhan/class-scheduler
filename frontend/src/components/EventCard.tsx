@@ -42,7 +42,9 @@ const EventCard: React.FC<EventCardProps> = ({ occurrence, isCompact }) => {
           sx={{
             fontWeight: "bold",
             display: "block",
-            truncate: true,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
             color: "inherit",
           }}
         >

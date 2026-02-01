@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Paper } from "@mui/material";
+import { Box, Typography, Paper, useTheme, useMediaQuery } from "@mui/material";
 import { DateTime, Info } from "luxon";
 import type { Occurrence } from "../types";
 import EventCard from "./EventCard";
@@ -15,6 +15,9 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
   currentDate,
   occurrences,
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   // Helper to filter occurrences for a specific date
   const getEventsForDate = (date: DateTime) => {
     return occurrences.filter((occ) => {
@@ -43,13 +46,16 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
+          gridTemplateColumns: {
+            xs: "repeat(7, minmax(100px, 1fr))",
+            md: "repeat(7, 1fr)",
+          },
           gap: "1px",
           bgcolor: "divider",
           border: "1px solid",
           borderColor: "divider",
           borderRadius: 2,
-          overflow: "hidden",
+          overflowX: "auto",
         }}
       >
         {weekdays.map((day) => (
@@ -57,10 +63,11 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
             key={day}
             sx={{
               bgcolor: "background.paper",
-              p: 2,
+              p: { xs: 1, md: 2 },
               textAlign: "center",
               borderBottom: "1px solid",
               borderColor: "divider",
+              minWidth: { xs: 100, md: "auto" },
             }}
           >
             <Typography
@@ -69,6 +76,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                 color: "text.secondary",
                 fontWeight: "bold",
                 textTransform: "uppercase",
+                fontSize: { xs: "0.65rem", md: "0.75rem" },
               }}
             >
               {day}
@@ -84,9 +92,13 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
             <Box
               key={d.toISODate()}
               sx={{
-                bgcolor: "background.paper",
-                minHeight: 120,
-                p: 2,
+                bgcolor: isToday
+                  ? (theme) =>
+                      theme.palette.mode === "dark" ? "#1a237e" : "#e8eaf6"
+                  : "background.paper",
+                minHeight: { xs: 100, md: 120 },
+                minWidth: { xs: 100, md: "auto" },
+                p: { xs: 0.5, md: 2 },
                 transition: "background-color 0.2s",
                 "&:hover": {
                   bgcolor: "action.hover",
@@ -98,42 +110,37 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                 sx={{
                   display: "flex",
                   justifyContent: "space-between",
-                  alignItems: "start",
+                  alignItems: "center",
+                  mb: 1,
                 }}
               >
                 <Typography
-                  variant="caption"
+                  variant="body2"
                   sx={{
-                    fontWeight: "medium",
-                    ...(isToday
-                      ? {
-                          bgcolor: "primary.main",
-                          color: "primary.contrastText",
-                          width: 24,
-                          height: 24,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          borderRadius: "50%",
-                        }
-                      : {
-                          color: "text.secondary",
-                        }),
+                    fontWeight: isToday ? "bold" : "normal",
+                    color: isToday ? "primary.main" : "text.primary",
+                    fontSize: { xs: "0.75rem", md: "0.875rem" },
                   }}
                 >
                   {d.day}
                 </Typography>
               </Box>
-              <Box
-                sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 1 }}
-              >
-                {events.map((occ) => (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                {events.slice(0, isMobile ? 2 : 4).map((occ) => (
                   <EventCard
                     key={occ.startAt + occ.classId}
                     occurrence={occ}
                     isCompact
                   />
                 ))}
+                {events.length > (isMobile ? 2 : 4) && (
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.secondary", pl: 0.5 }}
+                  >
+                    + {events.length - (isMobile ? 2 : 4)} more
+                  </Typography>
+                )}
               </Box>
             </Box>
           );
@@ -151,7 +158,16 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
 
     return (
       <Box
-        sx={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 2 }}
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "repeat(7, minmax(120px, 1fr))",
+            md: "repeat(7, 1fr)",
+          },
+          gap: { xs: 1, md: 2 },
+          overflowX: "auto",
+          pb: 1,
+        }}
       >
         {days.map((d) => {
           const events = getEventsForDate(d);
@@ -160,12 +176,17 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
           return (
             <Box
               key={d.toISODate()}
-              sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: { xs: 1, md: 2 },
+                minWidth: { xs: 120, md: "auto" },
+              }}
             >
               <Paper
                 elevation={0}
                 sx={{
-                  p: 1.5,
+                  p: { xs: 1, md: 1.5 },
                   border: "1px solid",
                   textAlign: "center",
                   borderRadius: 2,
@@ -188,13 +209,18 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                     fontWeight: "bold",
                     textTransform: "uppercase",
                     display: "block",
+                    fontSize: { xs: "0.65rem", md: "0.75rem" },
                   }}
                 >
                   {d.toFormat("ccc")}
                 </Typography>
                 <Typography
                   variant="h6"
-                  sx={{ fontWeight: "bold", color: "inherit" }}
+                  sx={{
+                    fontWeight: "bold",
+                    color: "inherit",
+                    fontSize: { xs: "1rem", md: "1.25rem" },
+                  }}
                 >
                   {d.day}
                 </Typography>
@@ -204,7 +230,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                   display: "flex",
                   flexDirection: "column",
                   gap: 1,
-                  minHeight: 500,
+                  minHeight: { xs: 300, md: 500 },
                   bgcolor: "action.hover",
                   borderRadius: 3,
                   p: 1,
@@ -213,7 +239,11 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                 }}
               >
                 {events.map((occ) => (
-                  <EventCard key={occ.startAt + occ.classId} occurrence={occ} />
+                  <EventCard
+                    key={occ.startAt + occ.classId}
+                    occurrence={occ}
+                    isCompact={isMobile}
+                  />
                 ))}
               </Box>
             </Box>
@@ -229,10 +259,10 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
     const events = getEventsForDate(currentDate);
 
     return (
-      <Box sx={{ display: "flex", gap: 4 }}>
+      <Box sx={{ display: "flex", gap: { xs: 1, md: 4 } }}>
         <Box
           sx={{
-            width: 80,
+            width: { xs: 60, md: 80 },
             display: "flex",
             flexDirection: "column",
             gap: 5,
@@ -247,7 +277,8 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                 color: "text.secondary",
                 display: "block",
                 textAlign: "right",
-                pr: 2,
+                pr: { xs: 1, md: 2 },
+                fontSize: { xs: "0.65rem", md: "0.75rem" },
               }}
             >
               {hour === 12
@@ -266,14 +297,18 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
             borderRadius: 3,
             border: "1px dashed",
             borderColor: "divider",
-            p: 2,
+            p: { xs: 1, md: 2 },
             minHeight: 600,
           }}
         >
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {events.length > 0 ? (
               events.map((occ) => (
-                <EventCard key={occ.startAt + occ.classId} occurrence={occ} />
+                <EventCard
+                  key={occ.startAt + occ.classId}
+                  occurrence={occ}
+                  isCompact={isMobile}
+                />
               ))
             ) : (
               <Box

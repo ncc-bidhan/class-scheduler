@@ -13,6 +13,8 @@ import {
   ListItemIcon,
   ListItemText,
   CssBaseline,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -34,13 +36,27 @@ interface AppShellProps {
 }
 
 const AppShell: React.FC<AppShellProps> = ({ children }) => {
-  const [open, setOpen] = useState(true);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [open, setOpen] = useState(!isMobile);
   const navigate = useNavigate();
   const location = useLocation();
   const { mode, toggleTheme } = useThemeMode();
 
+  // Update open state when screen size changes
+  React.useEffect(() => {
+    setOpen(!isMobile);
+  }, [isMobile]);
+
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    if (isMobile) {
+      setOpen(false);
+    }
   };
 
   const menuItems = [
@@ -62,15 +78,16 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.leavingScreen,
             }),
-          ...(open && {
-            marginLeft: drawerWidth,
-            width: `calc(100% - ${drawerWidth}px)`,
-            transition: (theme) =>
-              theme.transitions.create(["width", "margin"], {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
-          }),
+          ...(!isMobile &&
+            open && {
+              marginLeft: drawerWidth,
+              width: `calc(100% - ${drawerWidth}px)`,
+              transition: (theme) =>
+                theme.transitions.create(["width", "margin"], {
+                  easing: theme.transitions.easing.sharp,
+                  duration: theme.transitions.duration.enteringScreen,
+                }),
+            }),
         }}
       >
         <Toolbar>
@@ -80,8 +97,8 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
             onClick={toggleDrawer}
             edge="start"
             sx={{
-              marginRight: 5,
-              ...(open && { display: "none" }),
+              marginRight: { xs: 2, md: 5 },
+              ...(!isMobile && open && { display: "none" }),
             }}
           >
             <MenuIcon />
@@ -90,7 +107,11 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
             variant="h6"
             noWrap
             component="div"
-            sx={{ flexGrow: 1, fontWeight: "bold" }}
+            sx={{
+              flexGrow: 1,
+              fontWeight: "bold",
+              fontSize: { xs: "1.1rem", md: "1.25rem" },
+            }}
           >
             Class Scheduler
           </Typography>
@@ -100,23 +121,25 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
         </Toolbar>
       </AppBar>
       <Drawer
-        variant="permanent"
+        variant={isMobile ? "temporary" : "permanent"}
         open={open}
+        onClose={isMobile ? toggleDrawer : undefined}
         sx={{
           width: drawerWidth,
           flexShrink: 0,
           [`& .MuiDrawer-paper`]: {
             width: drawerWidth,
             boxSizing: "border-box",
-            ...(!open && {
-              overflowX: "hidden",
-              transition: (theme) =>
-                theme.transitions.create("width", {
-                  easing: theme.transitions.easing.sharp,
-                  duration: theme.transitions.duration.leavingScreen,
-                }),
-              width: (theme) => theme.spacing(7),
-            }),
+            ...(!isMobile &&
+              !open && {
+                overflowX: "hidden",
+                transition: (theme) =>
+                  theme.transitions.create("width", {
+                    easing: theme.transitions.easing.sharp,
+                    duration: theme.transitions.duration.leavingScreen,
+                  }),
+                width: (theme) => theme.spacing(7),
+              }),
           },
         }}
       >
@@ -130,7 +153,7 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
           {menuItems.map((item) => (
             <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
               <ListItemButton
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNavigation(item.path)}
                 selected={location.pathname === item.path}
                 sx={{
                   minHeight: 48,
@@ -170,10 +193,19 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 2, md: 3 },
           mt: 8,
           minHeight: "100vh",
           bgcolor: "background.default",
+          width: {
+            xs: "100%",
+            md: `calc(100% - ${open && !isMobile ? drawerWidth : 56}px)`,
+          },
+          transition: (theme) =>
+            theme.transitions.create(["width", "margin"], {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.leavingScreen,
+            }),
         }}
       >
         {children}

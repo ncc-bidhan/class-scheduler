@@ -10,6 +10,8 @@ import {
   Typography,
   Stack,
   IconButton,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { CalendarMonth, Close } from "@mui/icons-material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -40,6 +42,8 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
   open,
   onClose,
 }) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const { enqueueSnackbar } = useSnackbar();
   const [type, setType] = useState<"single" | "recurring">("single");
   const [formData, setFormData] = useState<CreateClassFormData>({
@@ -174,9 +178,10 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      fullScreen={fullScreen}
       PaperProps={{
         sx: {
-          borderRadius: 2,
+          borderRadius: fullScreen ? 0 : 2,
           boxShadow: (theme) => theme.shadows[10],
         },
       }}
