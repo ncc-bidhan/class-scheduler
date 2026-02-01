@@ -28,6 +28,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useThemeMode } from "../contexts/ThemeContext";
+import logo from "../assets/ClassFlowHorizontal.png";
 
 const drawerWidth = 240;
 
@@ -97,24 +98,24 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
             onClick={toggleDrawer}
             edge="start"
             sx={{
-              marginRight: { xs: 2, md: 5 },
+              marginRight: 2,
               ...(!isMobile && open && { display: "none" }),
             }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{
-              flexGrow: 1,
-              fontWeight: "bold",
-              fontSize: { xs: "1.1rem", md: "1.25rem" },
-            }}
-          >
-            Class Scheduler
-          </Typography>
+          {!open && (
+            <Box
+              component="img"
+              src={logo}
+              alt="ClassFlow"
+              sx={{
+                height: 80,
+                display: "block",
+              }}
+            />
+          )}
+          <Box sx={{ flexGrow: 1 }} />
           <IconButton onClick={toggleTheme} color="inherit">
             {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
           </IconButton>
@@ -143,7 +144,25 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
           },
         }}
       >
-        <Toolbar>
+        <Toolbar
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: open ? "space-between" : "flex-end",
+            px: [1.5],
+          }}
+        >
+          {open && (
+            <Box
+              component="img"
+              src={logo}
+              alt="ClassFlow"
+              sx={{
+                height: 80,
+                ml: 1,
+              }}
+            />
+          )}
           <IconButton onClick={toggleDrawer}>
             <ChevronLeftIcon />
           </IconButton>
