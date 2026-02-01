@@ -110,6 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
                 minHeight: 48,
                 justifyContent: open ? "initial" : "center",
                 px: 2.5,
+                py: 2,
               }}
             >
               <ListItemIcon
