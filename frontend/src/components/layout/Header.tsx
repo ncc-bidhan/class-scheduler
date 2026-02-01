@@ -24,7 +24,7 @@ const Header: React.FC<HeaderProps> = ({ open, isMobile, onToggle }) => {
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
         transition: (theme) =>
-          theme.transitions.create(["width", "margin"], {
+          theme.transitions.create(["width", "margin", "height"], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
@@ -32,15 +32,17 @@ const Header: React.FC<HeaderProps> = ({ open, isMobile, onToggle }) => {
           open && {
             marginLeft: DRAWER_WIDTH,
             width: `calc(100% - ${DRAWER_WIDTH}px)`,
+            height: 70,
+            justifyContent: "center",
             transition: (theme) =>
-              theme.transitions.create(["width", "margin"], {
+              theme.transitions.create(["width", "margin", "height"], {
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.enteringScreen,
               }),
           }),
       }}
     >
-      <Toolbar>
+      <Toolbar sx={{ height: "100%" }}>
         <IconButton
           color="inherit"
           aria-label="open drawer"
