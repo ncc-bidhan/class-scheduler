@@ -27,6 +27,7 @@ import { useLazyGetBranchesQuery } from "../services/branchApi";
 import type { Room, Branch } from "../types";
 import AppTable from "../components/AppTable";
 import type { Column } from "../components/AppTable";
+import usePageTitle from "../hooks/usePageTitle";
 
 const modalStyle = {
   position: "absolute",
@@ -41,6 +42,7 @@ const modalStyle = {
 };
 
 export function RoomsPage() {
+  usePageTitle("Rooms");
   const navigate = useNavigate();
   const [opened, setOpened] = useState(false);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);

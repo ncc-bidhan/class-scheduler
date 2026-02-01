@@ -20,14 +20,18 @@ import {
 } from "@mui/icons-material";
 import { useGetRoomQuery } from "../services/roomApi";
 import { useGetBranchQuery } from "../services/branchApi";
+import usePageTitle from "../hooks/usePageTitle";
 
 const RoomDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: response, isLoading, error } = useGetRoomQuery(id!);
+  usePageTitle(response?.data?.name || "Room Details");
 
   // Also fetch branch details to show branch name if we have the branchId
-  const branchId = response?.data?.branchId;
+  const rawBranchId = response?.data?.branchId;
+  const branchId = typeof rawBranchId === "string" ? rawBranchId : rawBranchId?._id;
+
   const { data: branchResponse } = useGetBranchQuery(branchId!, {
     skip: !branchId,
   });
@@ -147,8 +151,10 @@ const RoomDetailPage: React.FC = () => {
                   }
                   sx={{ cursor: "pointer" }}
                 />
-              ) : (
+              ) : typeof room.branchId === "string" ? (
                 room.branchId
+              ) : (
+                room.branchId?.name || "N/A"
               ),
             )}
           </Grid>

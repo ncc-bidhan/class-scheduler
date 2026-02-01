@@ -24,11 +24,13 @@ import { useGetBranchQuery } from "../services/branchApi";
 import { useGetRoomsQuery } from "../services/roomApi";
 import { useGetInstructorsQuery } from "../services/instructorApi";
 import { Chip } from "@mui/material";
+import usePageTitle from "../hooks/usePageTitle";
 
 const BranchDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: response, isLoading, error } = useGetBranchQuery(id!);
+  usePageTitle(response?.data?.name || "Branch Details");
   const { data: roomsResponse } = useGetRoomsQuery({ branchId: id });
   const { data: instructorsResponse } = useGetInstructorsQuery({
     branchId: id,

@@ -13,8 +13,10 @@ import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useRegisterMutation } from "../services/authApi";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../store/authSlice";
+import usePageTitle from "../hooks/usePageTitle";
 
 const RegisterPage: React.FC = () => {
+  usePageTitle("Register");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

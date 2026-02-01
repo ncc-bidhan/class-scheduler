@@ -27,6 +27,7 @@ import { useLazyGetBranchesQuery } from "../services/branchApi";
 import type { Instructor, Branch } from "../types";
 import AppTable from "../components/AppTable";
 import type { Column } from "../components/AppTable";
+import usePageTitle from "../hooks/usePageTitle";
 
 const modalStyle = {
   position: "absolute",
@@ -41,6 +42,7 @@ const modalStyle = {
 };
 
 export function InstructorsPage() {
+  usePageTitle("Instructors");
   const navigate = useNavigate();
   const [opened, setOpened] = useState(false);
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(

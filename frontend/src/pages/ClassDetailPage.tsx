@@ -26,11 +26,13 @@ import {
 import { DateTime } from "luxon";
 import { useGetClassByIdQuery } from "../services/classesApi";
 import type { Branch, Instructor, Room } from "../types";
+import usePageTitle from "../hooks/usePageTitle";
 
 const ClassDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: response, isLoading, error } = useGetClassByIdQuery(id!);
+  usePageTitle(response?.data?.name || "Class Details");
 
   if (isLoading) {
     return (

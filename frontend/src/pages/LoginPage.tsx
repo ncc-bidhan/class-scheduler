@@ -13,8 +13,10 @@ import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useLoginMutation } from "../services/authApi";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../store/authSlice";
+import usePageTitle from "../hooks/usePageTitle";
 
 const LoginPage: React.FC = () => {
+  usePageTitle("Login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);

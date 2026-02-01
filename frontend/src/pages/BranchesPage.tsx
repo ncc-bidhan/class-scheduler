@@ -25,6 +25,7 @@ import {
 import type { Branch } from "../types";
 import AppTable from "../components/AppTable";
 import type { Column } from "../components/AppTable";
+import usePageTitle from "../hooks/usePageTitle";
 
 const modalStyle = {
   position: "absolute",
@@ -39,6 +40,7 @@ const modalStyle = {
 };
 
 export function BranchesPage() {
+  usePageTitle("Branches");
   const navigate = useNavigate();
   const [opened, setOpened] = useState(false);
   const [editingBranch, setEditingBranch] = useState<Branch | null>(null);

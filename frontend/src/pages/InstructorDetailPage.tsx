@@ -20,11 +20,13 @@ import {
   LocationOnOutlined as BranchIcon,
 } from "@mui/icons-material";
 import { useGetInstructorQuery } from "../services/instructorApi";
+import usePageTitle from "../hooks/usePageTitle";
 
 const InstructorDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: response, isLoading, error } = useGetInstructorQuery(id!);
+  usePageTitle(response?.data?.name || "Instructor Details");
 
   if (isLoading) {
     return (
