@@ -45,7 +45,7 @@ export const validate =
 
     return sendError(res, {
       title: "Validation Error",
-      message: "Invalid schedule input",
+      message: "Invalid input provided",
       statusCode: 400,
       errors,
     });

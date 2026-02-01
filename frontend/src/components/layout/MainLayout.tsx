@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Box, CssBaseline, useMediaQuery, useTheme } from "@mui/material";
+import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { DRAWER_WIDTH, COLLAPSED_DRAWER_WIDTH } from "./layout.constants";
 
-interface MainLayoutProps {
-  children: React.ReactNode;
-}
-
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+const MainLayout: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [open, setOpen] = useState(!isMobile);
@@ -46,7 +43,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             }),
         }}
       >
-        {children}
+        <Outlet />
       </Box>
     </Box>
   );

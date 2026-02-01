@@ -78,12 +78,14 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
   const [createRecurring, { isLoading: isRecurringLoading }] =
     useCreateRecurringClassMutation();
 
-  const { data: branchesResponse } = useGetBranchesQuery();
+  const { data: branchesResponse } = useGetBranchesQuery(undefined, { skip: !open });
   const { data: instructorsResponse } = useGetInstructorsQuery(
     formData.branchId ? { branchId: formData.branchId } : undefined,
+    { skip: !open || !formData.branchId }
   );
   const { data: roomsResponse } = useGetRoomsQuery(
     formData.branchId ? { branchId: formData.branchId } : undefined,
+    { skip: !open || !formData.branchId }
   );
 
   const isLoading = isSingleLoading || isRecurringLoading;
