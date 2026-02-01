@@ -24,5 +24,6 @@ router.get(
   validate(occurrencesQuerySchema, "query"),
   classController.getOccurrences,
 );
+router.get("/:id", classController.getClassById);
 
 export default router;

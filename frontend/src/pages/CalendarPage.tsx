@@ -26,7 +26,12 @@ import {
 } from "@mui/icons-material";
 
 import CalendarGrid from "../components/CalendarGrid";
+import ClassListView from "../components/ClassListView";
 import CreateClassModal from "../components/CreateClassModal";
+import {
+  CalendarMonth as CalendarIcon,
+  List as ListIcon,
+} from "@mui/icons-material";
 
 import { useGetOccurrencesQuery } from "../services/classesApi";
 
@@ -34,6 +39,9 @@ const CalendarPage: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [view, setView] = useState<"day" | "week" | "month">("week");
+  const [displayMode, setDisplayMode] = useState<"calendar" | "list">(
+    "calendar",
+  );
   const [search, setSearch] = useState("");
   const [currentDate, setCurrentDate] = useState(DateTime.now());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -76,7 +84,18 @@ const CalendarPage: React.FC = () => {
     refetch,
   } = useGetOccurrencesQuery(dateRange);
 
-  const occurrences = response?.data || [];
+  const occurrences = useMemo(() => {
+    const data = response?.data || [];
+    if (!search) return data;
+
+    const searchLower = search.toLowerCase();
+    return data.filter(
+      (occ) =>
+        occ.className?.toLowerCase().includes(searchLower) ||
+        occ.instructorName?.toLowerCase().includes(searchLower) ||
+        occ.roomName?.toLowerCase().includes(searchLower),
+    );
+  }, [response, search]);
 
   const handleViewChange = (
     _event: React.MouseEvent<HTMLElement>,
@@ -84,6 +103,15 @@ const CalendarPage: React.FC = () => {
   ) => {
     if (nextView !== null) {
       setView(nextView);
+    }
+  };
+
+  const handleDisplayModeChange = (
+    _event: React.MouseEvent<HTMLElement>,
+    nextMode: "calendar" | "list",
+  ) => {
+    if (nextMode !== null) {
+      setDisplayMode(nextMode);
     }
   };
 
@@ -294,37 +322,78 @@ const CalendarPage: React.FC = () => {
             )}
           </Stack>
 
-          <ToggleButtonGroup
-            value={view}
-            exclusive
-            onChange={handleViewChange}
-            size="small"
-            disabled={isLoading}
-            fullWidth={isMobile}
-            sx={{
-              bgcolor: "action.hover",
-              p: 0.5,
-              borderRadius: 2,
-              width: { xs: "100%", sm: "auto" },
-              "& .MuiToggleButton-root": {
-                border: "none",
-                flex: { xs: 1, sm: "initial" },
-                px: { xs: 1, sm: 2 },
-                borderRadius: 1.5,
-                "&.Mui-selected": {
-                  bgcolor: "primary.main",
-                  color: "primary.contrastText",
-                  "&:hover": {
-                    bgcolor: "primary.dark",
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{ width: { xs: "100%", sm: "auto" } }}
+          >
+            <ToggleButtonGroup
+              value={displayMode}
+              exclusive
+              onChange={handleDisplayModeChange}
+              size="small"
+              disabled={isLoading}
+              sx={{
+                bgcolor: "action.hover",
+                p: 0.5,
+                borderRadius: 2,
+                "& .MuiToggleButton-root": {
+                  border: "none",
+                  px: 2,
+                  borderRadius: 1.5,
+                  "&.Mui-selected": {
+                    bgcolor: "background.paper",
+                    color: "primary.main",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                    "&:hover": {
+                      bgcolor: "background.paper",
+                    },
                   },
                 },
-              },
-            }}
-          >
-            <ToggleButton value="day">Day</ToggleButton>
-            <ToggleButton value="week">Week</ToggleButton>
-            <ToggleButton value="month">Month</ToggleButton>
-          </ToggleButtonGroup>
+              }}
+            >
+              <ToggleButton value="calendar">
+                <CalendarIcon sx={{ mr: 1, fontSize: 18 }} />
+                Calendar
+              </ToggleButton>
+              <ToggleButton value="list">
+                <ListIcon sx={{ mr: 1, fontSize: 18 }} />
+                List
+              </ToggleButton>
+            </ToggleButtonGroup>
+
+            <ToggleButtonGroup
+              value={view}
+              exclusive
+              onChange={handleViewChange}
+              size="small"
+              disabled={isLoading}
+              fullWidth={isMobile}
+              sx={{
+                bgcolor: "action.hover",
+                p: 0.5,
+                borderRadius: 2,
+                width: { xs: "100%", sm: "auto" },
+                "& .MuiToggleButton-root": {
+                  border: "none",
+                  flex: { xs: 1, sm: "initial" },
+                  px: { xs: 1, sm: 2 },
+                  borderRadius: 1.5,
+                  "&.Mui-selected": {
+                    bgcolor: "primary.main",
+                    color: "primary.contrastText",
+                    "&:hover": {
+                      bgcolor: "primary.dark",
+                    },
+                  },
+                },
+              }}
+            >
+              <ToggleButton value="day">Day</ToggleButton>
+              <ToggleButton value="week">Week</ToggleButton>
+              <ToggleButton value="month">Month</ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
         </Box>
       </Paper>
 
@@ -351,12 +420,14 @@ const CalendarPage: React.FC = () => {
             sx={{ borderRadius: 3 }}
           />
         </Box>
-      ) : (
+      ) : displayMode === "calendar" ? (
         <CalendarGrid
           view={view}
           currentDate={currentDate}
           occurrences={occurrences}
         />
+      ) : (
+        <ClassListView occurrences={occurrences} />
       )}
 
       <CreateClassModal

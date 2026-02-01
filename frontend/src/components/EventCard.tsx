@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, CardContent, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import { DateTime } from "luxon";
 import type { Occurrence } from "../types";
 
@@ -9,6 +10,7 @@ interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ occurrence, isCompact }) => {
+  const navigate = useNavigate();
   const start = DateTime.fromISO(occurrence.startAt);
   const end = DateTime.fromISO(occurrence.endAt);
 
@@ -17,6 +19,7 @@ const EventCard: React.FC<EventCardProps> = ({ occurrence, isCompact }) => {
   return (
     <Card
       elevation={0}
+      onClick={() => navigate(`/classes/${occurrence.classId}`)}
       sx={{
         minWidth: 0,
         bgcolor: (theme) =>
@@ -48,7 +51,7 @@ const EventCard: React.FC<EventCardProps> = ({ occurrence, isCompact }) => {
             color: "inherit",
           }}
         >
-          Class: {occurrence.classId.slice(-4)}
+          {occurrence.className || `Class: ${occurrence.classId.slice(-4)}`}
         </Typography>
         {!isCompact && (
           <Typography

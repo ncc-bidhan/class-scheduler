@@ -57,3 +57,22 @@ export const getOccurrences = async (req: Request, res: Response) => {
     data: occurrences,
   });
 };
+
+export const getClassById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const classDoc = await classService.getById(Array.isArray(id) ? id[0] : id);
+
+  if (!classDoc) {
+    return sendError(res, {
+      title: "Not Found",
+      message: "Class not found",
+      statusCode: 404,
+    });
+  }
+
+  return sendSuccess(res, {
+    title: "Class fetched",
+    message: "Class details loaded",
+    data: classDoc,
+  });
+};

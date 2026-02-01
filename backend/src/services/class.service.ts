@@ -144,7 +144,10 @@ export const getOccurrences = async (
   if (query.instructorId) filter.instructorId = query.instructorId;
   if (query.roomId) filter.roomId = query.roomId;
 
-  const classes = (await Class.find(filter)) as IClass[];
+  const classes = (await Class.find(filter)
+    .populate("instructorId")
+    .populate("roomId")
+    .populate("branchId")) as IClass[];
 
   const all: Occurrence[] = [];
   for (const c of classes) {
@@ -155,4 +158,11 @@ export const getOccurrences = async (
     (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
   );
   return all;
+};
+
+export const getById = async (id: string): Promise<IClass | null> => {
+  return Class.findById(id)
+    .populate("branchId")
+    .populate("instructorId")
+    .populate("roomId");
 };

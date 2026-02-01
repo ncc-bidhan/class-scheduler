@@ -45,9 +45,9 @@ export interface ClassDoc {
   type: "single" | "recurring";
   name: string;
   description?: string;
-  branchId: string;
-  instructorId: string;
-  roomId: string;
+  branchId: string | Branch;
+  instructorId: string | Instructor;
+  roomId: string | Room;
   timezone: string;
   durationMinutes: number;
   capacity: number;
@@ -69,8 +69,12 @@ export interface ClassDoc {
 
 export interface Occurrence {
   classId: string;
+  className?: string;
   startAt: string;
   endAt: string;
+  instructorName?: string;
+  roomName?: string;
+  branchName?: string;
 }
 
 // Legacy types (keep for compatibility if needed, but ClassDoc is preferred)

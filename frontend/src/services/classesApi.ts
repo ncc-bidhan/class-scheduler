@@ -58,6 +58,10 @@ export const classesApi = api.injectEndpoints({
         { type: "Class", id: "LIST" },
       ],
     }),
+    getClassById: builder.query<SuccessResponse<ClassDoc>, string>({
+      query: (id) => `classes/${id}`,
+      providesTags: (_result, _error, id) => [{ type: "Class", id }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -66,4 +70,5 @@ export const {
   useGetOccurrencesQuery,
   useCreateSingleClassMutation,
   useCreateRecurringClassMutation,
+  useGetClassByIdQuery,
 } = classesApi;

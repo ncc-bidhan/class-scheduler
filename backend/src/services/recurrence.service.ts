@@ -4,8 +4,12 @@ import { IClass, TimeSlot } from "../models/Class";
 
 export type Occurrence = {
   classId: string;
+  className?: string;
   startAt: string;
   endAt: string;
+  instructorName?: string;
+  roomName?: string;
+  branchName?: string;
 };
 
 const parseHHMM = (s: string) => {
@@ -50,6 +54,18 @@ export const expandOccurrencesForClass = (
   const to = DateTime.fromISO(toISO, { zone: doc.timezone });
 
   const classId = String(doc._id);
+  const className = doc.name;
+  const instructorName = (doc.instructorId as any)?.name;
+  const roomName = (doc.roomId as any)?.name;
+  const branchName = (doc.branchId as any)?.name;
+
+  const baseOccurrence = {
+    classId,
+    className,
+    instructorName,
+    roomName,
+    branchName,
+  };
 
   // SINGLE
   if (doc.type === "single") {
@@ -57,7 +73,7 @@ export const expandOccurrencesForClass = (
     const s = DateTime.fromJSDate(doc.startAt).toISO()!;
     const e = DateTime.fromJSDate(doc.endAt).toISO()!;
     if (overlapsWindow(s, e, from, to))
-      return [{ classId, startAt: s, endAt: e }];
+      return [{ ...baseOccurrence, startAt: s, endAt: e }];
     return [];
   }
 
@@ -87,7 +103,7 @@ export const expandOccurrencesForClass = (
       for (const slot of slots) {
         const { startISO, endISO } = makeISO(cursor, tz, slot);
         if (overlapsWindow(startISO, endISO, from, to))
-          out.push({ classId, startAt: startISO, endAt: endISO });
+          out.push({ ...baseOccurrence, startAt: startISO, endAt: endISO });
       }
       cursor = cursor.plus({ days: interval });
     }
@@ -115,7 +131,7 @@ export const expandOccurrencesForClass = (
           for (const slot of slots) {
             const { startISO, endISO } = makeISO(cursor, tz, slot);
             if (overlapsWindow(startISO, endISO, from, to))
-              out.push({ classId, startAt: startISO, endAt: endISO });
+              out.push({ ...baseOccurrence, startAt: startISO, endAt: endISO });
           }
         }
       }
@@ -146,7 +162,7 @@ export const expandOccurrencesForClass = (
           for (const slot of slots) {
             const { startISO, endISO } = makeISO(date, tz, slot);
             if (overlapsWindow(startISO, endISO, from, to))
-              out.push({ classId, startAt: startISO, endAt: endISO });
+              out.push({ ...baseOccurrence, startAt: startISO, endAt: endISO });
           }
         }
       }
@@ -172,7 +188,7 @@ export const expandOccurrencesForClass = (
         for (const slot of slots) {
           const { startISO, endISO } = makeISO(day, tz, slot);
           if (overlapsWindow(startISO, endISO, from, to))
-            out.push({ classId, startAt: startISO, endAt: endISO });
+            out.push({ ...baseOccurrence, startAt: startISO, endAt: endISO });
         }
       }
     }
