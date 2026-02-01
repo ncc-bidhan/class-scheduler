@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import AppShell from "./components/AppShell";
+import { MainLayout } from "./components/layout";
 import CalendarPage from "./pages/CalendarPage";
 import { BranchesPage } from "./pages/BranchesPage";
 import { InstructorsPage } from "./pages/InstructorsPage";
@@ -10,14 +10,14 @@ function App() {
   return (
     <BrowserRouter>
       <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
-        <AppShell>
+        <MainLayout>
           <Routes>
             <Route path="/" element={<CalendarPage />} />
             <Route path="/branches" element={<BranchesPage />} />
             <Route path="/instructors" element={<InstructorsPage />} />
             <Route path="/rooms" element={<RoomsPage />} />
           </Routes>
-        </AppShell>
+        </MainLayout>
       </SnackbarProvider>
     </BrowserRouter>
   );
