@@ -39,11 +39,11 @@ const ClassTypeSelector: React.FC<ClassTypeSelectorProps> = ({
           },
         }}
       >
-        <ToggleButton value="single">
+        <ToggleButton value="single" sx={{ mr: 1 }}>
           <Schedule sx={{ mr: 1, fontSize: 20 }} />
           Single Class
         </ToggleButton>
-        <ToggleButton value="recurring">
+        <ToggleButton value="recurring" sx={{ ml: 1 }}>
           <CalendarMonth sx={{ mr: 1, fontSize: 20 }} />
           Recurring Pattern
         </ToggleButton>

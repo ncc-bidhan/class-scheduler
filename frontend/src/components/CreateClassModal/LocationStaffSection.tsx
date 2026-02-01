@@ -22,7 +22,7 @@ const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
   rooms,
 }) => {
   return (
-    <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
+    <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
       <Typography
         variant="subtitle1"
         fontWeight={600}
@@ -32,7 +32,7 @@ const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
         Location & Staff
       </Typography>
       <Grid container spacing={2.5} sx={{ mt: 0.5 }}>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <TextField
             fullWidth
             select
@@ -44,9 +44,7 @@ const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
             helperText={fieldErrors.branchId || "Select branch first"}
             required
             InputProps={{
-              startAdornment: (
-                <Room sx={{ mr: 1, color: "action.active" }} />
-              ),
+              startAdornment: <Room sx={{ mr: 1, color: "action.active" }} />,
             }}
           >
             {branches.map((branch) => (
@@ -57,7 +55,7 @@ const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
           </TextField>
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <TextField
             fullWidth
             select
@@ -70,9 +68,7 @@ const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
             required
             disabled={!formData.branchId}
             InputProps={{
-              startAdornment: (
-                <Person sx={{ mr: 1, color: "action.active" }} />
-              ),
+              startAdornment: <Person sx={{ mr: 1, color: "action.active" }} />,
             }}
           >
             {instructors.map((instructor) => (
@@ -83,7 +79,7 @@ const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
           </TextField>
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <TextField
             fullWidth
             select
@@ -96,9 +92,7 @@ const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
             required
             disabled={!formData.branchId}
             InputProps={{
-              startAdornment: (
-                <Room sx={{ mr: 1, color: "action.active" }} />
-              ),
+              startAdornment: <Room sx={{ mr: 1, color: "action.active" }} />,
             }}
           >
             {rooms.map((room) => (

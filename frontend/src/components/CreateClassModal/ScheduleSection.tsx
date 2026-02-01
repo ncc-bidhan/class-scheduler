@@ -20,7 +20,7 @@ const ScheduleSection: React.FC<ScheduleSectionProps> = ({
   fieldErrors,
 }) => {
   return (
-    <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
+    <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
       <Typography
         variant="subtitle1"
         fontWeight={600}
@@ -32,7 +32,7 @@ const ScheduleSection: React.FC<ScheduleSectionProps> = ({
       <Grid container spacing={2.5} sx={{ mt: 0.5 }}>
         {type === "single" ? (
           <>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <DateTimePicker
                 label="Start Time"
                 value={formData.startAt.toJSDate()}
@@ -53,7 +53,7 @@ const ScheduleSection: React.FC<ScheduleSectionProps> = ({
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <DateTimePicker
                 label="End Time"
                 value={formData.endAt.toJSDate()}
@@ -77,7 +77,7 @@ const ScheduleSection: React.FC<ScheduleSectionProps> = ({
           </>
         ) : (
           <>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <DateTimePicker
                 label="Pattern Start"
                 value={formData.dtstart.toJSDate()}
@@ -98,9 +98,9 @@ const ScheduleSection: React.FC<ScheduleSectionProps> = ({
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <DateTimePicker
-                label="Ends Until (Optional)"
+                label="Pattern End"
                 value={formData.until ? formData.until.toJSDate() : null}
                 onChange={(date) =>
                   setFormData((prev) => ({
@@ -117,8 +117,7 @@ const ScheduleSection: React.FC<ScheduleSectionProps> = ({
                 }}
               />
             </Grid>
-
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Divider sx={{ my: 1 }} />
               <Box sx={{ mt: 2 }}>
                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>

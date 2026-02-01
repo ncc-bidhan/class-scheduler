@@ -14,7 +14,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
   fieldErrors,
 }) => {
   return (
-    <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
+    <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
       <Typography
         variant="subtitle1"
         fontWeight={600}
@@ -24,7 +24,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
         Basic Information
       </Typography>
       <Grid container spacing={2.5} sx={{ mt: 0.5 }}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
             label="Class Name"
@@ -38,7 +38,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
             label="Description"

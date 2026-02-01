@@ -241,7 +241,7 @@ export function RoomsPage() {
                 {branchesResponse?.data.map((branch) => (
                   <MenuItem key={branch._id} value={branch._id}>
                     {branch.name}
-                  </MenuItem>
+                  </MenuItem> 
                 ))}
               </TextField>
               <TextField

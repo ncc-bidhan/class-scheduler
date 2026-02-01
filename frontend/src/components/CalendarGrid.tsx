@@ -17,7 +17,6 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   // Helper to filter occurrences for a specific date
   const getEventsForDate = (date: DateTime) => {
     return occurrences.filter((occ) => {

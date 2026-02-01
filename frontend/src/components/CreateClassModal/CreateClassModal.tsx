@@ -211,7 +211,7 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
 
       <DialogContent dividers sx={{ px: 3, py: 3 }}>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <Stack spacing={3}>
+          <Stack spacing={4}>
             {generalError && (
               <Alert
                 severity="error"

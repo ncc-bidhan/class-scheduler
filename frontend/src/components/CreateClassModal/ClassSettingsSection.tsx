@@ -24,7 +24,7 @@ const ClassSettingsSection: React.FC<ClassSettingsSectionProps> = ({
   fieldErrors,
 }) => {
   return (
-    <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
+    <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
       <Typography
         variant="subtitle1"
         fontWeight={600}
@@ -34,7 +34,7 @@ const ClassSettingsSection: React.FC<ClassSettingsSectionProps> = ({
         Class Settings
       </Typography>
       <Grid container spacing={2.5} sx={{ mt: 0.5 }}>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <TextField
             fullWidth
             label="Duration"
@@ -55,7 +55,7 @@ const ClassSettingsSection: React.FC<ClassSettingsSectionProps> = ({
           />
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <TextField
             fullWidth
             label="Capacity"
@@ -72,7 +72,7 @@ const ClassSettingsSection: React.FC<ClassSettingsSectionProps> = ({
           />
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <TextField
             fullWidth
             label="Waitlist Capacity"
@@ -86,7 +86,7 @@ const ClassSettingsSection: React.FC<ClassSettingsSectionProps> = ({
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Box
             display="flex"
             alignItems="center"

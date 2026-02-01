@@ -6,12 +6,10 @@ import {
   ToggleButton,
   IconButton,
   TextField,
-  Grid,
   Chip,
   Paper,
   Divider,
   Stack,
-  Tooltip,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -269,7 +267,7 @@ const RecurrenceEditor: React.FC<RecurrenceEditorProps> = ({
     } else if (freq === "custom" && rrule) {
       try {
         const rule = RRule.fromString(rrule);
-        const dates = rule.all((d, i) => i < max);
+        const dates = rule.all((_, i) => i < max);
         for (const d of dates) {
           const day = DateTime.fromJSDate(d, { zone: timezone }).startOf("day");
           for (const slot of timeSlots) {
