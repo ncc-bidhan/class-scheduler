@@ -1,13 +1,12 @@
 import { DateTime } from "luxon";
-import { IClass } from "../models/Class";
+import { RRule } from "rrule";
+import { IClass, TimeSlot } from "../models/Class";
 
 export type Occurrence = {
   classId: string;
-  startAt: string; // ISO
-  endAt: string; // ISO
+  startAt: string;
+  endAt: string;
 };
-
-type TimeSlot = { startTime: string; endTime: string };
 
 const parseHHMM = (s: string) => {
   const [h, m] = s.split(":").map(Number);
@@ -32,6 +31,7 @@ const makeISO = (date: DateTime, tz: string, slot: TimeSlot) => {
   const start = date
     .set({ hour: sh, minute: sm, second: 0, millisecond: 0 })
     .setZone(tz, { keepLocalTime: true });
+
   const end = date
     .set({ hour: eh, minute: em, second: 0, millisecond: 0 })
     .setZone(tz, { keepLocalTime: true });
@@ -51,7 +51,7 @@ export const expandOccurrencesForClass = (
 
   const classId = String(doc._id);
 
-  // Single class
+  // SINGLE
   if (doc.type === "single") {
     if (!doc.startAt || !doc.endAt) return [];
     const s = DateTime.fromJSDate(doc.startAt).toISO()!;
@@ -61,7 +61,7 @@ export const expandOccurrencesForClass = (
     return [];
   }
 
-  // Recurring
+  // RECURRING
   if (!doc.dtstart || !doc.recurrence) return [];
 
   const tz = doc.timezone;
@@ -79,6 +79,7 @@ export const expandOccurrencesForClass = (
   if (rec.freq === "daily") {
     const interval = Math.max(1, rec.interval ?? 1);
     const slots = rec.timeSlots ?? [];
+
     let cursor = windowStart.startOf("day");
     const endDay = windowEnd.startOf("day");
 
@@ -141,6 +142,7 @@ export const expandOccurrencesForClass = (
         for (const dom of monthDays) {
           const date = cursorMonth.set({ day: dom });
           if (!date.isValid) continue;
+
           for (const slot of slots) {
             const { startISO, endISO } = makeISO(date, tz, slot);
             if (overlapsWindow(startISO, endISO, from, to))
@@ -152,8 +154,29 @@ export const expandOccurrencesForClass = (
     }
   }
 
-  // CUSTOM (optional later)
-  // If you want it now, install `rrule` and I’ll drop in the code.
+  // CUSTOM (RRULE)
+  if (rec.freq === "custom") {
+    const slots = rec.timeSlots ?? [];
+    const rruleString = rec.rrule;
+
+    if (rruleString) {
+      const rule = RRule.fromString(rruleString);
+      const dates = rule.between(
+        windowStart.toJSDate(),
+        windowEnd.toJSDate(),
+        true,
+      );
+
+      for (const d of dates) {
+        const day = DateTime.fromJSDate(d, { zone: tz }).startOf("day");
+        for (const slot of slots) {
+          const { startISO, endISO } = makeISO(day, tz, slot);
+          if (overlapsWindow(startISO, endISO, from, to))
+            out.push({ classId, startAt: startISO, endAt: endISO });
+        }
+      }
+    }
+  }
 
   out.sort(
     (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),

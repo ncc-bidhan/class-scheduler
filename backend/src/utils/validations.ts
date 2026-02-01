@@ -3,12 +3,17 @@ import { z } from "zod";
 /** Mongo ObjectId */
 const objectIdSchema = z
   .string()
-  .regex(/^[0-9a-fA-F]{24}$/, "Invalid ID format");
+  .length(24, "Invalid ID format")
+  .regex(/^[0-9a-fA-F]+$/, "Invalid ID format");
 
 /** "HH:mm" 24h */
 const hhmmSchema = z
   .string()
   .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Time must be in HH:mm format");
+
+const uniqueTimeSlots = (slots: { startTime: string; endTime: string }[]) =>
+  new Set(slots.map((s) => `${s.startTime}-${s.endTime}`)).size ===
+  slots.length;
 
 /** Basic timeslot */
 const timeSlotSchema = z
@@ -43,7 +48,7 @@ const baseSchema = z.object({
   allowDropIn: z.boolean().default(false),
 });
 
-/** Single (one-time) class: explicit startAt + endAt */
+/** Single */
 export const createSingleClassSchema = baseSchema
   .extend({
     type: z.literal("single"),
@@ -60,15 +65,17 @@ export const createSingleClassSchema = baseSchema
     }
   });
 
-/** Recurrence schemas */
+/** Daily recurrence */
 const dailyRecurrence = z.object({
   freq: z.literal("daily"),
   interval: z.number().int().min(1).default(1),
   timeSlots: z
     .array(timeSlotSchema)
-    .min(1, "At least one time slot is required"),
+    .min(1, "At least one time slot is required")
+    .refine(uniqueTimeSlots, "Duplicate time slots are not allowed"),
 });
 
+/** Weekly recurrence */
 const weeklyRecurrence = z
   .object({
     freq: z.literal("weekly"),
@@ -77,15 +84,18 @@ const weeklyRecurrence = z
       .array(z.number().int().min(0).max(6))
       .min(1, "Select weekdays"),
     timeSlotsByWeekday: z
-      .record(z.string(), z.array(timeSlotSchema))
+      .record(
+        z.string().regex(/^[0-6]$/, "Weekday key must be 0-6"),
+        z.array(timeSlotSchema),
+      )
       .refine(
         (obj) => Object.keys(obj).length > 0,
         "Time slots by weekday are required",
       ),
   })
   .superRefine((val, ctx) => {
-    // Ensure keys are within selected weekdays
     const selected = new Set(val.byWeekday.map(String));
+
     for (const key of Object.keys(val.timeSlotsByWeekday)) {
       if (!selected.has(key)) {
         ctx.addIssue({
@@ -94,27 +104,43 @@ const weeklyRecurrence = z
           message: "Weekday has time slots but is not selected",
         });
       }
+
+      const slots = val.timeSlotsByWeekday[key] ?? [];
+      if (!uniqueTimeSlots(slots)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["timeSlotsByWeekday", key],
+          message: "Duplicate time slots are not allowed",
+        });
+      }
     }
   });
 
+/** Monthly recurrence */
 const monthlyRecurrence = z.object({
   freq: z.literal("monthly"),
   interval: z.number().int().min(1).default(1),
   byMonthDay: z
     .array(z.number().int().min(1).max(31))
-    .min(1, "Select month dates"),
+    .min(1, "Select month dates")
+    .refine(
+      (arr) => new Set(arr).size === arr.length,
+      "Duplicate month days are not allowed",
+    ),
   timeSlots: z
     .array(timeSlotSchema)
-    .min(1, "At least one time slot is required"),
+    .min(1, "At least one time slot is required")
+    .refine(uniqueTimeSlots, "Duplicate time slots are not allowed"),
 });
 
+/** Custom recurrence */
 const customRecurrence = z.object({
   freq: z.literal("custom"),
-  // RRULE string is the cleanest way to support your “advanced looping logic”
   rrule: z.string().min(1, "RRULE is required"),
   timeSlots: z
     .array(timeSlotSchema)
-    .min(1, "At least one time slot is required"),
+    .min(1, "At least one time slot is required")
+    .refine(uniqueTimeSlots, "Duplicate time slots are not allowed"),
 });
 
 export const createRecurringClassSchema = baseSchema
@@ -143,7 +169,7 @@ export const createRecurringClassSchema = baseSchema
     }
   });
 
-/** Occurrences query schema */
+/** Occurrences query */
 export const occurrencesQuerySchema = z
   .object({
     from: z.string().datetime({ message: "Invalid 'from' date format" }),

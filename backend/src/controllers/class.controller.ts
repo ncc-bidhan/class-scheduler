@@ -1,29 +1,55 @@
 import { Request, Response } from "express";
-import { sendSuccess } from "../utils/response";
+import { sendSuccess, sendError } from "../utils/response";
 import * as classService from "../services/class.service";
+import { ServiceError } from "../services/class.service";
 
 export const createSingleClass = async (req: Request, res: Response) => {
-  const newClass = await classService.createSingle(req.body);
+  try {
+    const newClass = await classService.createSingle(req.body);
 
-  return sendSuccess(res, {
-    title: "Class created",
-    message: "Single class created successfully",
-    data: newClass,
-  });
+    return sendSuccess(res, {
+      title: "Class created",
+      message: "Single class created successfully",
+      data: newClass,
+    });
+  } catch (err: any) {
+    if (err instanceof ServiceError) {
+      return sendError(res, {
+        title: "Validation Error",
+        message: err.message,
+        statusCode: err.statusCode,
+        errors: err.errors,
+      });
+    }
+    throw err;
+  }
 };
 
 export const createRecurringClass = async (req: Request, res: Response) => {
-  const newClass = await classService.createRecurring(req.body);
+  try {
+    const newClass = await classService.createRecurring(req.body);
 
-  return sendSuccess(res, {
-    title: "Class created",
-    message: "Recurring class pattern created successfully",
-    data: newClass,
-  });
+    return sendSuccess(res, {
+      title: "Class created",
+      message: "Recurring class pattern created successfully",
+      data: newClass,
+    });
+  } catch (err: any) {
+    if (err instanceof ServiceError) {
+      return sendError(res, {
+        title: "Validation Error",
+        message: err.message,
+        statusCode: err.statusCode,
+        errors: err.errors,
+      });
+    }
+    throw err;
+  }
 };
 
 export const getOccurrences = async (req: Request, res: Response) => {
-  const occurrences = await classService.getOccurrences(req.query as any);
+  const query = (res.locals.validated?.query ?? req.query) as any;
+  const occurrences = await classService.getOccurrences(query);
 
   return sendSuccess(res, {
     title: "Classes fetched",

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-type TimeSlot = { startTime: string; endTime: string };
+export type TimeSlot = { startTime: string; endTime: string };
 
 export interface IClass extends Document {
   type: "single" | "recurring";
@@ -31,12 +31,8 @@ export interface IClass extends Document {
 
     // weekly
     byWeekday?: number[]; // 0..6
-    timeSlotsByWeekday?: Map<string, TimeSlot[]>; // key: "0".."6"
-
-    // monthly
+    timeSlotsByWeekday?: mongoose.Types.Map<TimeSlot[]>; // key: "0".."6"
     byMonthDay?: number[]; // 1..31
-
-    // custom
     rrule?: string;
   };
 }
@@ -49,18 +45,18 @@ const TimeSlotSchema = new Schema<TimeSlot>(
   { _id: false },
 );
 
-const ClassSchema: Schema = new Schema(
+const ClassSchema = new Schema<IClass>(
   {
     type: { type: String, enum: ["single", "recurring"], required: true },
 
-    name: { type: String, required: true },
-    description: { type: String },
+    name: { type: String, required: true, trim: true, maxlength: 100 },
+    description: { type: String, trim: true, maxlength: 500 },
 
     branchId: { type: Schema.Types.ObjectId, required: true, index: true },
     instructorId: { type: Schema.Types.ObjectId, required: true, index: true },
     roomId: { type: Schema.Types.ObjectId, required: true, index: true },
 
-    timezone: { type: String, required: true },
+    timezone: { type: String, required: true, trim: true },
     durationMinutes: { type: Number, required: true },
 
     capacity: { type: Number, required: true },
@@ -68,36 +64,52 @@ const ClassSchema: Schema = new Schema(
     allowDropIn: { type: Boolean, default: false },
 
     // Single
-    startAt: { type: Date, index: true },
+    startAt: { type: Date },
     endAt: { type: Date },
 
     // Recurring
-    dtstart: { type: Date, index: true },
-    until: { type: Date, default: null },
+    dtstart: { type: Date },
+    until: { type: Date },
 
     recurrence: {
-      freq: { type: String, enum: ["daily", "weekly", "monthly", "custom"] },
-      interval: { type: Number, default: 1 },
+      freq: {
+        type: String,
+        enum: ["daily", "weekly", "monthly", "custom"],
+      },
+      interval: { type: Number },
 
-      timeSlots: { type: [TimeSlotSchema], default: undefined },
+      timeSlots: { type: [TimeSlotSchema] },
 
-      byWeekday: { type: [Number], default: undefined },
+      byWeekday: { type: [Number] },
       timeSlotsByWeekday: {
         type: Map,
         of: [TimeSlotSchema],
-        default: undefined,
       },
 
-      byMonthDay: { type: [Number], default: undefined },
+      byMonthDay: { type: [Number] },
 
-      rrule: { type: String, default: undefined },
+      rrule: { type: String },
     },
   },
   { timestamps: true },
 );
 
-// Helpful indexes for later conflict + fetching
+// Helpful indexes
 ClassSchema.index({ branchId: 1, instructorId: 1 });
 ClassSchema.index({ branchId: 1, roomId: 1 });
+
+// Enforce clean field combinations
+ClassSchema.pre("validate", function () {
+  if (this.type === "single") {
+    this.set("dtstart", undefined);
+    this.set("until", undefined);
+    this.set("recurrence", undefined);
+  }
+
+  if (this.type === "recurring") {
+    this.set("startAt", undefined);
+    this.set("endAt", undefined);
+  }
+});
 
 export default mongoose.model<IClass>("Class", ClassSchema);

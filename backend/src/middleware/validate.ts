@@ -1,23 +1,44 @@
 import { Request, Response, NextFunction } from "express";
-import { ZodError, ZodTypeAny } from "zod";
+import { ZodTypeAny } from "zod";
 import { sendError } from "../utils/response";
 
 type ValidateTarget = "body" | "query" | "params";
 
+declare global {
+  namespace Express {
+    interface Locals {
+      validated?: {
+        body?: any;
+        query?: any;
+        params?: any;
+      };
+    }
+  }
+}
+
 export const validate =
   (schema: ZodTypeAny, target: ValidateTarget = "body") =>
   (req: Request, res: Response, next: NextFunction) => {
-    const result = schema.safeParse(req[target]);
+    const dataToValidate =
+      target === "body"
+        ? req.body
+        : target === "query"
+          ? req.query
+          : req.params;
+
+    const result = schema.safeParse(dataToValidate);
 
     if (result.success) {
-      // Put parsed/cleaned data back (zod transforms/coercions apply)
-      (req as any)[target] = result.data;
+      if (target === "body") {
+        req.body = result.data;
+      } else {
+        res.locals.validated = res.locals.validated || {};
+        res.locals.validated[target] = result.data;
+      }
       return next();
     }
 
-    // Zod error -> strict format
-    const zerr: ZodError = result.error;
-    const errors = zerr.issues.map((issue) => ({
+    const errors = result.error.issues.map((issue) => ({
       field: issue.path.length ? issue.path.join(".") : target,
       message: issue.message,
     }));
