@@ -12,9 +12,9 @@ import {
   Stack,
 } from "@mui/material";
 import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  EventNote as EventNoteIcon,
+  AddOutlined as AddIcon,
+  DeleteOutlined as DeleteIcon,
+  EventNoteOutlined as EventNoteIcon,
 } from "@mui/icons-material";
 import { DateTime, Info } from "luxon";
 import { RRule } from "rrule";

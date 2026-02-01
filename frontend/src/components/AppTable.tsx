@@ -70,13 +70,13 @@ const AppTable = <T extends Record<string, any>>({
       sx={{ borderRadius: 3, overflow: "hidden" }}
     >
       <Table>
-        <TableHead sx={{ bgcolor: "action.hover" }}>
+        <TableHead>
           <TableRow>
             {columns.map((column) => (
               <TableCell
                 key={column.id as string}
                 align={column.align}
-                sx={{ fontWeight: "bold", width: column.width }}
+                sx={{ width: column.width }}
               >
                 {column.label}
               </TableCell>

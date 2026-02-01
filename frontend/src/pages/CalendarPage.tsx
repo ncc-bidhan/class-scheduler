@@ -18,19 +18,19 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import {
-  Search as SearchIcon,
-  Add as AddIcon,
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  Refresh as RefreshIcon,
+  SearchOutlined as SearchIcon,
+  AddOutlined as AddIcon,
+  ChevronLeftOutlined as ChevronLeftIcon,
+  ChevronRightOutlined as ChevronRightIcon,
+  RefreshOutlined as RefreshIcon,
 } from "@mui/icons-material";
 
 import CalendarGrid from "../components/CalendarGrid";
 import ClassListView from "../components/ClassListView";
 import CreateClassModal from "../components/CreateClassModal";
 import {
-  CalendarMonth as CalendarIcon,
-  List as ListIcon,
+  CalendarMonthOutlined as CalendarIcon,
+  ListOutlined as ListIcon,
 } from "@mui/icons-material";
 
 import { useGetOccurrencesQuery } from "../services/classesApi";

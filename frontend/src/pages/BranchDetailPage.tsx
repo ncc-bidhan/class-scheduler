@@ -12,13 +12,13 @@ import {
   Alert,
 } from "@mui/material";
 import {
-  ArrowBack as ArrowBackIcon,
-  LocationOn as LocationIcon,
-  Phone as PhoneIcon,
-  Email as EmailIcon,
-  AccessTime as TimezoneIcon,
-  MeetingRoom as RoomIcon,
-  Person as PersonIcon,
+  ArrowBackOutlined as ArrowBackIcon,
+  LocationOnOutlined as LocationIcon,
+  PhoneOutlined as PhoneIcon,
+  EmailOutlined as EmailIcon,
+  AccessTimeOutlined as TimezoneIcon,
+  MeetingRoomOutlined as RoomIcon,
+  PersonOutlined as PersonIcon,
 } from "@mui/icons-material";
 import { useGetBranchQuery } from "../services/branchApi";
 import { useGetRoomsQuery } from "../services/roomApi";
@@ -122,7 +122,7 @@ const BranchDetailPage: React.FC = () => {
         </Box>
 
         <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
               Contact Information
             </Typography>
@@ -131,7 +131,7 @@ const BranchDetailPage: React.FC = () => {
             {renderInfoItem(<PhoneIcon />, "Phone", branch.phone)}
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
               Location Details
             </Typography>
@@ -140,7 +140,7 @@ const BranchDetailPage: React.FC = () => {
             {renderInfoItem(<TimezoneIcon />, "Timezone", branch.timezone)}
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
               Staff & Rooms
             </Typography>

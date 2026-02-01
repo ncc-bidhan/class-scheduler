@@ -12,9 +12,9 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
-  Edit as IconEdit,
-  Delete as IconTrash,
-  Add as IconPlus,
+  EditOutlined as IconEdit,
+  DeleteOutlined as IconTrash,
+  AddOutlined as IconPlus,
 } from "@mui/icons-material";
 import {
   useGetBranchesQuery,

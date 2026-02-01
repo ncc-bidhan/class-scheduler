@@ -49,7 +49,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
             xs: "repeat(7, minmax(100px, 1fr))",
             md: "repeat(7, 1fr)",
           },
-          gap: "1px",
+          rowGap: "1px",
           bgcolor: "divider",
           border: "1px solid",
           borderColor: "divider",
@@ -64,8 +64,6 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
               bgcolor: "background.paper",
               p: { xs: 1, md: 2 },
               textAlign: "center",
-              borderBottom: "1px solid",
-              borderColor: "divider",
               minWidth: { xs: 100, md: "auto" },
             }}
           >

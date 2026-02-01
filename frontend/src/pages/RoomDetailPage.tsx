@@ -13,10 +13,10 @@ import {
   Chip,
 } from "@mui/material";
 import {
-  ArrowBack as ArrowBackIcon,
-  MeetingRoom as RoomIcon,
-  Group as CapacityIcon,
-  LocationOn as LocationIcon,
+  ArrowBackOutlined as ArrowBackIcon,
+  MeetingRoomOutlined as RoomIcon,
+  GroupOutlined as CapacityIcon,
+  LocationOnOutlined as LocationIcon,
 } from "@mui/icons-material";
 import { useGetRoomQuery } from "../services/roomApi";
 import { useGetBranchQuery } from "../services/branchApi";
@@ -118,7 +118,7 @@ const RoomDetailPage: React.FC = () => {
         </Box>
 
         <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
               Room Details
             </Typography>
@@ -130,7 +130,7 @@ const RoomDetailPage: React.FC = () => {
             )}
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
               Location
             </Typography>

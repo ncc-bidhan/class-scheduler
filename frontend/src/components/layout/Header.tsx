@@ -13,10 +13,10 @@ import {
   ListItemText,
 } from "@mui/material";
 import {
-  Menu as MenuIcon,
-  Brightness4 as DarkModeIcon,
-  Brightness7 as LightModeIcon,
-  Logout as LogoutIcon,
+  MenuOutlined as MenuIcon,
+  Brightness4Outlined as DarkModeIcon,
+  Brightness7Outlined as LightModeIcon,
+  LogoutOutlined as LogoutIcon,
   AccountCircleOutlined as ProfileIcon,
   LockOutlined as PasswordIcon,
 } from "@mui/icons-material";

@@ -9,7 +9,7 @@ import {
   Switch,
   Tooltip,
 } from "@mui/material";
-import { People, Info } from "@mui/icons-material";
+import { PeopleOutlined as People, InfoOutlined as Info } from "@mui/icons-material";
 import type { CreateClassFormData } from "./types";
 
 interface ClassSettingsSectionProps {

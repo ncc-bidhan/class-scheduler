@@ -55,6 +55,24 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
         },
       },
     },
+    MuiTable: {
+      styleOverrides: {
+        root: {
+          borderCollapse: 'collapse',
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderBottom: `1px solid ${mode === "dark" ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.12)"}`,
+        },
+        head: {
+          backgroundColor: mode === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.02)",
+          fontWeight: 'bold',
+        },
+      },
+    },
   },
 });
 

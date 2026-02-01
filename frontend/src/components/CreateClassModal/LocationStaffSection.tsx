@@ -1,6 +1,6 @@
 import React from "react";
 import { Paper, Typography, Grid, TextField, MenuItem } from "@mui/material";
-import { Room, Person } from "@mui/icons-material";
+import { RoomOutlined as Room, PersonOutlined as Person } from "@mui/icons-material";
 import type { CreateClassFormData } from "./types";
 import type { Branch, Instructor, Room as RoomType } from "../../types";
 

@@ -17,9 +17,9 @@ import {
   BusinessOutlined as BusinessIcon,
   PeopleOutlined as PeopleIcon,
   MeetingRoomOutlined as MeetingRoomIcon,
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  Menu as MenuIcon,
+  ChevronLeftOutlined as ChevronLeftIcon,
+  ChevronRightOutlined as ChevronRightIcon,
+  MenuOutlined as MenuIcon,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/ClassFlowHorizontal.png";

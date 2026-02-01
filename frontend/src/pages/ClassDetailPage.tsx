@@ -14,14 +14,14 @@ import {
   Alert,
 } from "@mui/material";
 import {
-  ArrowBack as ArrowBackIcon,
-  Schedule as ScheduleIcon,
-  LocationOn as LocationIcon,
-  Person as PersonIcon,
-  MeetingRoom as RoomIcon,
-  Group as CapacityIcon,
-  Timer as DurationIcon,
-  Repeat as RecurringIcon,
+  ArrowBackOutlined as ArrowBackIcon,
+  ScheduleOutlined as ScheduleIcon,
+  LocationOnOutlined as LocationIcon,
+  PersonOutlined as PersonIcon,
+  MeetingRoomOutlined as RoomIcon,
+  GroupOutlined as CapacityIcon,
+  TimerOutlined as DurationIcon,
+  RepeatOutlined as RecurringIcon,
 } from "@mui/icons-material";
 import { DateTime } from "luxon";
 import { useGetClassByIdQuery } from "../services/classesApi";
@@ -160,7 +160,7 @@ const ClassDetailPage: React.FC = () => {
         <Divider sx={{ mb: 4 }} />
 
         <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
               Schedule Details
             </Typography>
@@ -209,7 +209,7 @@ const ClassDetailPage: React.FC = () => {
             )}
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
               Location & Staff
             </Typography>

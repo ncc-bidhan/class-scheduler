@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, ToggleButtonGroup, ToggleButton } from "@mui/material";
-import { Schedule, CalendarMonth } from "@mui/icons-material";
+import { ScheduleOutlined as Schedule, CalendarMonthOutlined as CalendarMonth } from "@mui/icons-material";
 
 interface ClassTypeSelectorProps {
   type: "single" | "recurring";

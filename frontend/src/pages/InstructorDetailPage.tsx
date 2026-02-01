@@ -13,11 +13,11 @@ import {
   Chip,
 } from "@mui/material";
 import {
-  ArrowBack as ArrowBackIcon,
-  Email as EmailIcon,
-  Phone as PhoneIcon,
-  Description as BioIcon,
-  LocationOn as BranchIcon,
+  ArrowBackOutlined as ArrowBackIcon,
+  EmailOutlined as EmailIcon,
+  PhoneOutlined as PhoneIcon,
+  DescriptionOutlined as BioIcon,
+  LocationOnOutlined as BranchIcon,
 } from "@mui/icons-material";
 import { useGetInstructorQuery } from "../services/instructorApi";
 

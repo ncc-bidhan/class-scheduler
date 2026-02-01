@@ -13,7 +13,7 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import { CalendarMonth, Close } from "@mui/icons-material";
+import { CalendarMonthOutlined as CalendarMonth, CloseOutlined as Close } from "@mui/icons-material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTime } from "luxon";
