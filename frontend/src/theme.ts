@@ -14,6 +14,9 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
       paper: mode === "dark" ? "#1e1e1e" : "#ffffff",
     },
   },
+  typography: {
+    fontFamily: '"Montserrat", "Roboto", "Helvetica", "Arial", sans-serif',
+  },
   components: {
     MuiButton: {
       styleOverrides: {

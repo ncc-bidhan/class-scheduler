@@ -5,6 +5,10 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { StyledEngineProvider } from "@mui/material/styles";
 import { store } from "./store";
 import { ThemeModeProvider } from "./contexts/ThemeContext";
+import "@fontsource/montserrat/300.css";
+import "@fontsource/montserrat/400.css";
+import "@fontsource/montserrat/500.css";
+import "@fontsource/montserrat/700.css";
 import "./index.css";
 import App from "./App.tsx";
 
