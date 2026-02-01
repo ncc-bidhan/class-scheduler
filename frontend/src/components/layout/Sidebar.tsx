@@ -10,12 +10,13 @@ import {
   ListItemIcon,
   ListItemText,
   Box,
+  useTheme,
 } from "@mui/material";
 import {
-  CalendarMonth as CalendarIcon,
-  Business as BusinessIcon,
-  People as PeopleIcon,
-  MeetingRoom as MeetingRoomIcon,
+  CalendarMonthOutlined as CalendarIcon,
+  BusinessOutlined as BusinessIcon,
+  PeopleOutlined as PeopleIcon,
+  MeetingRoomOutlined as MeetingRoomIcon,
   ChevronLeft as ChevronLeftIcon,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -32,6 +33,10 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
+
+  const isDarkMode = theme.palette.mode === "dark";
+  const unselectedColor = isDarkMode ? "text.primary" : "text.secondary";
 
   const menuItems = [
     { text: "Calendar", icon: <CalendarIcon />, path: "/" },
@@ -90,7 +95,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
             }}
           />
         )}
-        <IconButton onClick={onToggle}>
+        <IconButton onClick={onToggle} sx={{ color: unselectedColor }}>
           <ChevronLeftIcon />
         </IconButton>
       </Toolbar>
@@ -114,8 +119,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
                   justifyContent: "center",
                   color:
                     location.pathname === item.path
-                      ? "primary.main"
-                      : "inherit",
+                      ? isDarkMode
+                        ? "common.white"
+                        : "primary.main"
+                      : unselectedColor,
                 }}
               >
                 {item.icon}
@@ -126,8 +133,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
                   opacity: open ? 1 : 0,
                   color:
                     location.pathname === item.path
-                      ? "primary.main"
-                      : "inherit",
+                      ? isDarkMode
+                        ? "common.white"
+                        : "primary.main"
+                      : unselectedColor,
                 }}
               />
             </ListItemButton>
