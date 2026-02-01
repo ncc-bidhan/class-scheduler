@@ -52,9 +52,24 @@ const ClassSchema = new Schema<IClass>(
     name: { type: String, required: true, trim: true, maxlength: 100 },
     description: { type: String, trim: true, maxlength: 500 },
 
-    branchId: { type: Schema.Types.ObjectId, required: true, index: true },
-    instructorId: { type: Schema.Types.ObjectId, required: true, index: true },
-    roomId: { type: Schema.Types.ObjectId, required: true, index: true },
+    branchId: {
+      type: Schema.Types.ObjectId,
+      ref: "Branch",
+      required: true,
+      index: true,
+    },
+    instructorId: {
+      type: Schema.Types.ObjectId,
+      ref: "Instructor",
+      required: true,
+      index: true,
+    },
+    roomId: {
+      type: Schema.Types.ObjectId,
+      ref: "Room",
+      required: true,
+      index: true,
+    },
 
     timezone: { type: String, required: true, trim: true },
     durationMinutes: { type: Number, required: true },

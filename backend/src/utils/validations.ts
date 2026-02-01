@@ -52,8 +52,12 @@ const baseSchema = z.object({
 export const createSingleClassSchema = baseSchema
   .extend({
     type: z.literal("single"),
-    startAt: z.string().datetime({ message: "Invalid startAt (ISO required)" }),
-    endAt: z.string().datetime({ message: "Invalid endAt (ISO required)" }),
+    startAt: z
+      .string()
+      .datetime({ offset: true, message: "Invalid startAt (ISO required)" }),
+    endAt: z
+      .string()
+      .datetime({ offset: true, message: "Invalid endAt (ISO required)" }),
   })
   .superRefine((val, ctx) => {
     if (val.startAt >= val.endAt) {
@@ -146,10 +150,12 @@ const customRecurrence = z.object({
 export const createRecurringClassSchema = baseSchema
   .extend({
     type: z.literal("recurring"),
-    dtstart: z.string().datetime({ message: "Invalid dtstart (ISO required)" }),
+    dtstart: z
+      .string()
+      .datetime({ offset: true, message: "Invalid dtstart (ISO required)" }),
     until: z
       .string()
-      .datetime({ message: "Invalid until (ISO required)" })
+      .datetime({ offset: true, message: "Invalid until (ISO required)" })
       .nullable()
       .optional(),
     recurrence: z.discriminatedUnion("freq", [
@@ -172,8 +178,12 @@ export const createRecurringClassSchema = baseSchema
 /** Occurrences query */
 export const occurrencesQuerySchema = z
   .object({
-    from: z.string().datetime({ message: "Invalid 'from' date format" }),
-    to: z.string().datetime({ message: "Invalid 'to' date format" }),
+    from: z
+      .string()
+      .datetime({ offset: true, message: "Invalid 'from' date format" }),
+    to: z
+      .string()
+      .datetime({ offset: true, message: "Invalid 'to' date format" }),
     branchId: objectIdSchema.optional(),
     instructorId: objectIdSchema.optional(),
     roomId: objectIdSchema.optional(),
@@ -187,3 +197,28 @@ export const occurrencesQuerySchema = z
       });
     }
   });
+
+/** Branch */
+export const branchSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100),
+  address: z.string().max(200).optional(),
+  phone: z.string().optional(),
+  email: z.string().email().optional().or(z.literal("")),
+  timezone: z.string().min(1, "Timezone is required"),
+});
+
+/** Instructor */
+export const instructorSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100),
+  bio: z.string().max(1000).optional(),
+  email: z.string().email().optional().or(z.literal("")),
+  phone: z.string().optional(),
+  branchIds: z.array(objectIdSchema).min(1, "At least one branch is required"),
+});
+
+/** Room */
+export const roomSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100),
+  branchId: objectIdSchema,
+  capacity: z.number().int().min(1).optional(),
+});

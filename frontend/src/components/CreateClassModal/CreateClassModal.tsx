@@ -1,0 +1,291 @@
+import React, { useState, useMemo } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Box,
+  Alert,
+  Typography,
+  Stack,
+  IconButton,
+} from "@mui/material";
+import { CalendarMonth, Close } from "@mui/icons-material";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DateTime } from "luxon";
+import { useSnackbar } from "notistack";
+import {
+  useCreateSingleClassMutation,
+  useCreateRecurringClassMutation,
+} from "../../services/classesApi";
+import { useGetBranchesQuery } from "../../services/branchApi";
+import { useGetInstructorsQuery } from "../../services/instructorApi";
+import { useGetRoomsQuery } from "../../services/roomApi";
+import type { ErrorResponse, FieldError } from "../../types";
+import ClassTypeSelector from "./ClassTypeSelector";
+import BasicInfoSection from "./BasicInfoSection";
+import LocationStaffSection from "./LocationStaffSection";
+import ScheduleSection from "./ScheduleSection";
+import ClassSettingsSection from "./ClassSettingsSection";
+import type { CreateClassFormData } from "./types";
+
+interface CreateClassModalProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+const CreateClassModal: React.FC<CreateClassModalProps> = ({
+  open,
+  onClose,
+}) => {
+  const { enqueueSnackbar } = useSnackbar();
+  const [type, setType] = useState<"single" | "recurring">("single");
+  const [formData, setFormData] = useState<CreateClassFormData>({
+    name: "",
+    description: "",
+    branchId: "",
+    instructorId: "",
+    roomId: "",
+    timezone: "Asia/Kathmandu",
+    durationMinutes: 60,
+    capacity: 20,
+    waitlistCapacity: 5,
+    allowDropIn: true,
+    startAt: DateTime.now().plus({ hours: 1 }).startOf("hour"),
+    endAt: DateTime.now().plus({ hours: 2 }).startOf("hour"),
+    dtstart: DateTime.now().plus({ hours: 1 }).startOf("hour"),
+    until: null as DateTime | null,
+    recurrence: {
+      freq: "weekly",
+      interval: 1,
+      byWeekday: [DateTime.now().weekday % 7],
+      timeSlots: [{ startTime: "09:00", endTime: "10:00" }],
+      timeSlotsByWeekday: {},
+    },
+  });
+
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [generalError, setGeneralError] = useState<string | null>(null);
+
+  const [createSingle, { isLoading: isSingleLoading }] =
+    useCreateSingleClassMutation();
+  const [createRecurring, { isLoading: isRecurringLoading }] =
+    useCreateRecurringClassMutation();
+
+  const { data: branchesResponse } = useGetBranchesQuery();
+  const { data: instructorsResponse } = useGetInstructorsQuery(
+    formData.branchId ? { branchId: formData.branchId } : undefined,
+  );
+  const { data: roomsResponse } = useGetRoomsQuery(
+    formData.branchId ? { branchId: formData.branchId } : undefined,
+  );
+
+  const isLoading = isSingleLoading || isRecurringLoading;
+
+  // Memoized values for better performance
+  const branches = useMemo(
+    () => branchesResponse?.data || [],
+    [branchesResponse],
+  );
+  const instructors = useMemo(
+    () => instructorsResponse?.data || [],
+    [instructorsResponse],
+  );
+  const rooms = useMemo(() => roomsResponse?.data || [], [roomsResponse]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => {
+        const { [name]: _, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
+
+  const handleSubmit = async () => {
+    setFieldErrors({});
+    setGeneralError(null);
+
+    try {
+      const payload: any = {
+        ...formData,
+        type,
+        durationMinutes: Number(formData.durationMinutes),
+        capacity: Number(formData.capacity),
+        waitlistCapacity: Number(formData.waitlistCapacity),
+      };
+
+      if (type === "single") {
+        payload.startAt = formData.startAt.toUTC().toISO();
+        payload.endAt = formData.endAt.toUTC().toISO();
+        delete payload.dtstart;
+        delete payload.until;
+        delete payload.recurrence;
+        await createSingle(payload).unwrap();
+      } else {
+        payload.dtstart = formData.dtstart.toUTC().toISO();
+        payload.until = formData.until ? formData.until.toUTC().toISO() : null;
+        payload.recurrence = formData.recurrence;
+        delete payload.startAt;
+        delete payload.endAt;
+        await createRecurring(payload).unwrap();
+      }
+
+      enqueueSnackbar(
+        `${type === "single" ? "Single class" : "Recurring pattern"} created successfully`,
+        { variant: "success" },
+      );
+      onClose();
+    } catch (err: any) {
+      const errorData = err.data as ErrorResponse;
+
+      if (errorData?.errors) {
+        const errors: Record<string, string> = {};
+        errorData.errors.forEach((fe: FieldError) => {
+          errors[fe.field] = fe.message;
+        });
+        setFieldErrors(errors);
+
+        if (errors.instructorId || errors.roomId || errors.timeSlots) {
+          enqueueSnackbar(errorData.message || "Schedule conflict detected", {
+            variant: "error",
+          });
+        }
+      } else {
+        setGeneralError(errorData?.message || "An unexpected error occurred");
+        enqueueSnackbar(errorData?.message || "Failed to create class", {
+          variant: "error",
+        });
+      }
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+          boxShadow: (theme) => theme.shadows[10],
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          pb: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={1}>
+          <CalendarMonth color="primary" />
+          <Typography variant="h5" component="span" fontWeight={600}>
+            Create New Class
+          </Typography>
+        </Box>
+        <IconButton
+          onClick={onClose}
+          size="small"
+          sx={{ color: "text.secondary" }}
+        >
+          <Close />
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent dividers sx={{ px: 3, py: 3 }}>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Stack spacing={3}>
+            {generalError && (
+              <Alert
+                severity="error"
+                onClose={() => setGeneralError(null)}
+                sx={{ borderRadius: 1.5 }}
+              >
+                {generalError}
+              </Alert>
+            )}
+
+            <ClassTypeSelector type={type} onTypeChange={setType} />
+
+            <BasicInfoSection
+              formData={formData}
+              handleInputChange={handleInputChange}
+              fieldErrors={fieldErrors}
+            />
+
+            <LocationStaffSection
+              formData={formData}
+              handleInputChange={handleInputChange}
+              fieldErrors={fieldErrors}
+              branches={branches}
+              instructors={instructors}
+              rooms={rooms}
+            />
+
+            <ScheduleSection
+              type={type}
+              formData={formData}
+              setFormData={setFormData}
+              fieldErrors={fieldErrors}
+            />
+
+            <ClassSettingsSection
+              formData={formData}
+              handleInputChange={handleInputChange}
+              fieldErrors={fieldErrors}
+            />
+          </Stack>
+        </LocalizationProvider>
+      </DialogContent>
+
+      <DialogActions
+        sx={{
+          px: 3,
+          py: 2,
+          bgcolor: (theme) =>
+            theme.palette.mode === "dark" ? "background.paper" : "grey.50",
+          borderTop: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Button
+          onClick={onClose}
+          color="inherit"
+          sx={{
+            textTransform: "none",
+            fontWeight: 500,
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          disabled={isLoading}
+          sx={{
+            textTransform: "none",
+            fontWeight: 600,
+            px: 4,
+            boxShadow: 2,
+          }}
+        >
+          {isLoading ? "Creating..." : "Create Class"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default CreateClassModal;
