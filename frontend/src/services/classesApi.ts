@@ -8,6 +8,8 @@ export interface GetOccurrencesArgs {
   instructorId?: string;
   roomId?: string;
   search?: string;
+  page?: number;
+  limit?: number;
 }
 
 export const classesApi = api.injectEndpoints({

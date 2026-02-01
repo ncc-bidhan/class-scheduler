@@ -3,18 +3,10 @@ import {
   Container,
   Typography,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   IconButton,
   Modal,
   TextField,
   Stack,
-  CircularProgress,
   Box,
   Divider,
   MenuItem,
@@ -31,8 +23,10 @@ import {
   useUpdateInstructorMutation,
   useDeleteInstructorMutation,
 } from "../services/instructorApi";
-import { useGetBranchesQuery } from "../services/branchApi";
-import type { Instructor } from "../types";
+import { useLazyGetBranchesQuery } from "../services/branchApi";
+import type { Instructor, Branch } from "../types";
+import AppTable from "../components/AppTable";
+import type { Column } from "../components/AppTable";
 
 const modalStyle = {
   position: "absolute",
@@ -60,8 +54,15 @@ export function InstructorsPage() {
     branchIds: [] as string[],
   });
 
-  const { data: instructorsResponse, isLoading } = useGetInstructorsQuery();
-  const { data: branchesResponse } = useGetBranchesQuery();
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  const { data: instructorsResponse, isLoading } = useGetInstructorsQuery({
+    page,
+    limit,
+  });
+  const [triggerGetBranches, { data: branchesResponse, isLoading: isBranchesLoading }] =
+    useLazyGetBranchesQuery();
   const [createInstructor] = useCreateInstructorMutation();
   const [updateInstructor] = useUpdateInstructorMutation();
   const [deleteInstructor] = useDeleteInstructorMutation();
@@ -74,7 +75,9 @@ export function InstructorsPage() {
         bio: instructor.bio || "",
         email: instructor.email || "",
         phone: instructor.phone || "",
-        branchIds: instructor.branchIds || [],
+        branchIds: (instructor.branchIds || []).map((b) =>
+          typeof b === "string" ? b : b._id,
+        ),
       });
     } else {
       setEditingInstructor(null);
@@ -125,12 +128,54 @@ export function InstructorsPage() {
     }
   };
 
-  if (isLoading)
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
+  const columns: Column<Instructor>[] = [
+    { id: "name", label: "Name" },
+    { id: "bio", label: "Bio" },
+    {
+      id: "contact",
+      label: "Contact",
+      render: (instructor) => (
+        <>
+          <Typography variant="body2">{instructor.email || "-"}</Typography>
+          <Typography variant="caption" color="text.secondary">
+            {instructor.phone || "-"}
+          </Typography>
+        </>
+      ),
+    },
+    {
+      id: "branches",
+      label: "Branches",
+      render: (instructor) => `${instructor.branchIds.length} branches`,
+    },
+    {
+      id: "actions",
+      label: "Actions",
+      align: "right",
+      render: (instructor) => (
+        <Stack direction="row" spacing={1} justifyContent="flex-end">
+          <IconButton
+            color="primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenModal(instructor);
+            }}
+          >
+            <IconEdit fontSize="small" />
+          </IconButton>
+          <IconButton
+            color="error"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(instructor._id);
+            }}
+          >
+            <IconTrash fontSize="small" />
+          </IconButton>
+        </Stack>
+      ),
+    },
+  ];
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
@@ -162,76 +207,25 @@ export function InstructorsPage() {
         </Button>
       </Box>
 
-      <TableContainer component={Paper} variant="outlined">
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Bio</TableCell>
-              <TableCell>Contact</TableCell>
-              <TableCell>Branches</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {instructorsResponse?.data.map((instructor) => (
-              <TableRow
-                key={instructor._id}
-                hover
-                onClick={() => navigate(`/instructors/${instructor._id}`)}
-                sx={{ cursor: "pointer" }}
-              >
-                <TableCell>{instructor.name}</TableCell>
-                <TableCell>{instructor.bio || "-"}</TableCell>
-                <TableCell>
-                  <Typography variant="body2">
-                    {instructor.email || "-"}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {instructor.phone || "-"}
-                  </Typography>
-                </TableCell>
-                <TableCell>{instructor.branchIds.length} branches</TableCell>
-                <TableCell align="right">
-                  <Stack direction="row" spacing={1} justifyContent="flex-end">
-                    <IconButton
-                      color="primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenModal(instructor);
-                      }}
-                    >
-                      <IconEdit fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      color="error"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(instructor._id);
-                      }}
-                    >
-                      <IconTrash fontSize="small" />
-                    </IconButton>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
-            {!instructorsResponse?.data.length && (
-              <TableRow>
-                <TableCell colSpan={5} align="center">
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ py: 2 }}
-                  >
-                    No instructors found. Add your first instructor!
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <AppTable<Instructor>
+        columns={columns}
+        data={instructorsResponse?.data || []}
+        isLoading={isLoading}
+        onRowClick={(instructor) => navigate(`/instructors/${instructor._id}`)}
+        emptyMessage="No instructors found. Add your first instructor!"
+        pagination={
+          instructorsResponse?.pagination
+            ? {
+                ...instructorsResponse.pagination,
+                onPageChange: setPage,
+                onRowsPerPageChange: (newLimit) => {
+                  setLimit(newLimit);
+                  setPage(1);
+                },
+              }
+            : undefined
+        }
+      />
 
       <Modal open={opened} onClose={() => setOpened(false)}>
         <Box sx={modalStyle}>
@@ -278,15 +272,23 @@ export function InstructorsPage() {
                 fullWidth
                 SelectProps={{
                   multiple: true,
+                  onOpen: () => triggerGetBranches(),
                 }}
                 value={formData.branchIds}
                 onChange={handleBranchChange}
+                disabled={isBranchesLoading}
               >
-                {branchesResponse?.data.map((branch) => (
-                  <MenuItem key={branch._id} value={branch._id}>
-                    {branch.name}
-                  </MenuItem>
-                ))}
+                {isBranchesLoading ? (
+                  <MenuItem disabled>Loading branches...</MenuItem>
+                ) : branchesResponse?.data && branchesResponse.data.length > 0 ? (
+                  branchesResponse.data.map((branch: Branch) => (
+                    <MenuItem key={branch._id} value={branch._id}>
+                      {branch.name}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>No branches found</MenuItem>
+                )}
               </TextField>
               <Box
                 sx={{

@@ -13,16 +13,27 @@ export const createRoom = async (req: Request, res: Response) => {
 
 export const getAllRooms = async (req: Request, res: Response) => {
   const branchId = req.query.branchId as string;
-  const rooms = await roomService.getAllRooms(branchId);
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+
+  const { rooms, total } = await roomService.getAllRooms(branchId, page, limit);
+
   return sendSuccess(res, {
     title: "Rooms fetched",
     message: "Room list loaded",
     data: rooms,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
   });
 };
 
 export const getRoomById = async (req: Request, res: Response) => {
-  const room = await roomService.getRoomById(req.params.id as string);
+  const { id } = req.params;
+  const room = await roomService.getRoomById(Array.isArray(id) ? id[0] : id);
   if (!room) {
     return sendError(res, {
       title: "Not Found",
@@ -38,7 +49,11 @@ export const getRoomById = async (req: Request, res: Response) => {
 };
 
 export const updateRoom = async (req: Request, res: Response) => {
-  const room = await roomService.updateRoom(req.params.id as string, req.body);
+  const { id } = req.params;
+  const room = await roomService.updateRoom(
+    Array.isArray(id) ? id[0] : id,
+    req.body,
+  );
   if (!room) {
     return sendError(res, {
       title: "Not Found",
@@ -54,7 +69,8 @@ export const updateRoom = async (req: Request, res: Response) => {
 };
 
 export const deleteRoom = async (req: Request, res: Response) => {
-  const room = await roomService.deleteRoom(req.params.id as string);
+  const { id } = req.params;
+  const room = await roomService.deleteRoom(Array.isArray(id) ? id[0] : id);
   if (!room) {
     return sendError(res, {
       title: "Not Found",

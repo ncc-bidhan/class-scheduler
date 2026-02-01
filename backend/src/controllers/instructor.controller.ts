@@ -13,16 +13,33 @@ export const createInstructor = async (req: Request, res: Response) => {
 
 export const getAllInstructors = async (req: Request, res: Response) => {
   const branchId = req.query.branchId as string;
-  const instructors = await instructorService.getAllInstructors(branchId);
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+
+  const { instructors, total } = await instructorService.getAllInstructors(
+    branchId,
+    page,
+    limit,
+  );
+
   return sendSuccess(res, {
     title: "Instructors fetched",
     message: "Instructor list loaded",
     data: instructors,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
   });
 };
 
 export const getInstructorById = async (req: Request, res: Response) => {
-  const instructor = await instructorService.getInstructorById(req.params.id);
+  const { id } = req.params;
+  const instructor = await instructorService.getInstructorById(
+    Array.isArray(id) ? id[0] : id,
+  );
   if (!instructor) {
     return sendError(res, {
       title: "Not Found",
@@ -38,7 +55,11 @@ export const getInstructorById = async (req: Request, res: Response) => {
 };
 
 export const updateInstructor = async (req: Request, res: Response) => {
-  const instructor = await instructorService.updateInstructor(req.params.id, req.body);
+  const { id } = req.params;
+  const instructor = await instructorService.updateInstructor(
+    Array.isArray(id) ? id[0] : id,
+    req.body,
+  );
   if (!instructor) {
     return sendError(res, {
       title: "Not Found",
@@ -54,7 +75,10 @@ export const updateInstructor = async (req: Request, res: Response) => {
 };
 
 export const deleteInstructor = async (req: Request, res: Response) => {
-  const instructor = await instructorService.deleteInstructor(req.params.id);
+  const { id } = req.params;
+  const instructor = await instructorService.deleteInstructor(
+    Array.isArray(id) ? id[0] : id,
+  );
   if (!instructor) {
     return sendError(res, {
       title: "Not Found",

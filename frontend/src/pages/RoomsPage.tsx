@@ -3,18 +3,10 @@ import {
   Container,
   Typography,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   IconButton,
   Modal,
   TextField,
   Stack,
-  CircularProgress,
   Box,
   Divider,
   MenuItem,
@@ -31,8 +23,10 @@ import {
   useUpdateRoomMutation,
   useDeleteRoomMutation,
 } from "../services/roomApi";
-import { useGetBranchesQuery } from "../services/branchApi";
-import type { Room } from "../types";
+import { useLazyGetBranchesQuery } from "../services/branchApi";
+import type { Room, Branch } from "../types";
+import AppTable from "../components/AppTable";
+import type { Column } from "../components/AppTable";
 
 const modalStyle = {
   position: "absolute",
@@ -56,8 +50,15 @@ export function RoomsPage() {
     capacity: 20 as number | "",
   });
 
-  const { data: roomsResponse, isLoading } = useGetRoomsQuery();
-  const { data: branchesResponse } = useGetBranchesQuery();
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  const { data: roomsResponse, isLoading } = useGetRoomsQuery({
+    page,
+    limit,
+  });
+  const [triggerGetBranches, { data: branchesResponse, isLoading: isBranchesLoading }] =
+    useLazyGetBranchesQuery();
   const [createRoom] = useCreateRoomMutation();
   const [updateRoom] = useUpdateRoomMutation();
   const [deleteRoom] = useDeleteRoomMutation();
@@ -67,7 +68,8 @@ export function RoomsPage() {
       setEditingRoom(room);
       setFormData({
         name: room.name,
-        branchId: room.branchId,
+        branchId:
+          typeof room.branchId === "string" ? room.branchId : room.branchId._id,
         capacity: room.capacity || "",
       });
     } else {
@@ -118,12 +120,54 @@ export function RoomsPage() {
     }
   };
 
-  if (isLoading)
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
+  const columns: Column<Room>[] = [
+    { id: "name", label: "Name" },
+    {
+      id: "branchId",
+      label: "Branch",
+      render: (room) => {
+        if (typeof room.branchId === "object" && room.branchId !== null) {
+          return room.branchId.name;
+        }
+        const branch = branchesResponse?.data.find(
+          (b) => b._id === room.branchId,
+        );
+        return branch?.name || room.branchId;
+      },
+    },
+    {
+      id: "capacity",
+      label: "Capacity",
+      render: (room) => room.capacity || "-",
+    },
+    {
+      id: "actions",
+      label: "Actions",
+      align: "right",
+      render: (room) => (
+        <Stack direction="row" spacing={1} justifyContent="flex-end">
+          <IconButton
+            color="primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenModal(room);
+            }}
+          >
+            <IconEdit fontSize="small" />
+          </IconButton>
+          <IconButton
+            color="error"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(room._id);
+            }}
+          >
+            <IconTrash fontSize="small" />
+          </IconButton>
+        </Stack>
+      ),
+    },
+  ];
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
@@ -155,76 +199,25 @@ export function RoomsPage() {
         </Button>
       </Box>
 
-      <TableContainer component={Paper} variant="outlined">
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Branch</TableCell>
-              <TableCell>Capacity</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {roomsResponse?.data.map((room) => {
-              const branch = branchesResponse?.data.find(
-                (b) => b._id === room.branchId,
-              );
-              return (
-                <TableRow
-                  key={room._id}
-                  hover
-                  onClick={() => navigate(`/rooms/${room._id}`)}
-                  sx={{ cursor: "pointer" }}
-                >
-                  <TableCell>{room.name}</TableCell>
-                  <TableCell>{branch?.name || room.branchId}</TableCell>
-                  <TableCell>{room.capacity || "-"}</TableCell>
-                  <TableCell align="right">
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      justifyContent="flex-end"
-                    >
-                      <IconButton
-                        color="primary"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenModal(room);
-                        }}
-                      >
-                        <IconEdit fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(room._id);
-                        }}
-                      >
-                        <IconTrash fontSize="small" />
-                      </IconButton>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {!roomsResponse?.data.length && (
-              <TableRow>
-                <TableCell colSpan={4} align="center">
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ py: 2 }}
-                  >
-                    No rooms found. Add your first room!
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <AppTable<Room>
+        columns={columns}
+        data={roomsResponse?.data || []}
+        isLoading={isLoading}
+        onRowClick={(room) => navigate(`/rooms/${room._id}`)}
+        emptyMessage="No rooms found. Add your first room!"
+        pagination={
+          roomsResponse?.pagination
+            ? {
+                ...roomsResponse.pagination,
+                onPageChange: setPage,
+                onRowsPerPageChange: (newLimit) => {
+                  setLimit(newLimit);
+                  setPage(1);
+                },
+              }
+            : undefined
+        }
+      />
 
       <Modal open={opened} onClose={() => setOpened(false)}>
         <Box sx={modalStyle}>
@@ -248,14 +241,24 @@ export function RoomsPage() {
                 name="branchId"
                 fullWidth
                 required
+                SelectProps={{
+                  onOpen: () => triggerGetBranches(),
+                }}
                 value={formData.branchId}
                 onChange={handleInputChange}
+                disabled={isBranchesLoading}
               >
-                {branchesResponse?.data.map((branch) => (
-                  <MenuItem key={branch._id} value={branch._id}>
-                    {branch.name}
-                  </MenuItem>
-                ))}
+                {isBranchesLoading ? (
+                  <MenuItem disabled>Loading branches...</MenuItem>
+                ) : branchesResponse?.data && branchesResponse.data.length > 0 ? (
+                  branchesResponse.data.map((branch: Branch) => (
+                    <MenuItem key={branch._id} value={branch._id}>
+                      {branch.name}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>No branches found</MenuItem>
+                )}
               </TextField>
               <TextField
                 label="Capacity"

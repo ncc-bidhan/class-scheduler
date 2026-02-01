@@ -3,7 +3,10 @@ import type { Instructor, SuccessResponse } from "../types";
 
 export const instructorApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getInstructors: builder.query<SuccessResponse<Instructor[]>, { branchId?: string } | void>({
+    getInstructors: builder.query<
+      SuccessResponse<Instructor[]>,
+      { branchId?: string; page?: number; limit?: number } | void
+    >({
       query: (params) => ({
         url: "instructors",
         params: params || {},
@@ -54,6 +57,7 @@ export const instructorApi = api.injectEndpoints({
 
 export const {
   useGetInstructorsQuery,
+  useLazyGetInstructorsQuery,
   useGetInstructorQuery,
   useCreateInstructorMutation,
   useUpdateInstructorMutation,

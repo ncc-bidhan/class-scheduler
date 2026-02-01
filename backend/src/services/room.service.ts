@@ -4,9 +4,24 @@ export const createRoom = async (payload: any): Promise<IRoom> => {
   return Room.create(payload);
 };
 
-export const getAllRooms = async (branchId?: string): Promise<IRoom[]> => {
+export const getAllRooms = async (
+  branchId?: string,
+  page: number = 1,
+  limit: number = 10,
+): Promise<{ rooms: IRoom[]; total: number }> => {
   const filter = branchId ? { branchId } : {};
-  return Room.find(filter).sort({ name: 1 });
+  const skip = (page - 1) * limit;
+
+  const [rooms, total] = await Promise.all([
+    Room.find(filter)
+      .populate("branchId", "name")
+      .sort({ name: 1 })
+      .skip(skip)
+      .limit(limit),
+    Room.countDocuments(filter),
+  ]);
+
+  return { rooms, total };
 };
 
 export const getRoomById = async (id: string): Promise<IRoom | null> => {

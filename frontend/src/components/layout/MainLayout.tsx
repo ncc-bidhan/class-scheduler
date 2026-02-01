@@ -20,7 +20,7 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <CssBaseline />
       <Header open={open} isMobile={isMobile} onToggle={toggleDrawer} />
       <Sidebar open={open} isMobile={isMobile} onToggle={toggleDrawer} />
@@ -29,21 +29,27 @@ const MainLayout: React.FC = () => {
         sx={{
           flexGrow: 1,
           p: { xs: 2, md: 3 },
-          mt: 8,
-          minHeight: "100vh",
-          bgcolor: "background.default",
-          width: {
-            xs: "100%",
-            md: `calc(100% - ${open && !isMobile ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH}px)`,
+          mt: { xs: 8, md: 12 }, // 96px (16px top + 64px height + 16px gap)
+          height: {
+            xs: "calc(100vh - 64px)", // 100vh - (0px top + 56px height + 8px gap)
+            md: "calc(100vh - 96px)", // 100vh - (16px top + 64px height + 16px gap)
           },
+          overflow: "auto",
+          display: "flex",
+          flexDirection: "column",
+          bgcolor: "background.default",
           transition: (theme) =>
             theme.transitions.create(["width", "margin"], {
               easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.leavingScreen,
+              duration: open
+                ? theme.transitions.duration.enteringScreen
+                : theme.transitions.duration.leavingScreen,
             }),
         }}
       >
-        <Outlet />
+        <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   );

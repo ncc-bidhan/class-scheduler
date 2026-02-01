@@ -4,8 +4,18 @@ export const createBranch = async (payload: any): Promise<IBranch> => {
   return Branch.create(payload);
 };
 
-export const getAllBranches = async (): Promise<IBranch[]> => {
-  return Branch.find().sort({ name: 1 });
+export const getAllBranches = async (
+  page: number = 1,
+  limit: number = 10,
+): Promise<{ branches: IBranch[]; total: number }> => {
+  const skip = (page - 1) * limit;
+
+  const [branches, total] = await Promise.all([
+    Branch.find().sort({ name: 1 }).skip(skip).limit(limit),
+    Branch.countDocuments(),
+  ]);
+
+  return { branches, total };
 };
 
 export const getBranchById = async (id: string): Promise<IBranch | null> => {

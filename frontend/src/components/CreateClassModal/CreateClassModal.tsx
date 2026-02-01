@@ -22,9 +22,9 @@ import {
   useCreateSingleClassMutation,
   useCreateRecurringClassMutation,
 } from "../../services/classesApi";
-import { useGetBranchesQuery } from "../../services/branchApi";
-import { useGetInstructorsQuery } from "../../services/instructorApi";
-import { useGetRoomsQuery } from "../../services/roomApi";
+import { useLazyGetBranchesQuery } from "../../services/branchApi";
+import { useLazyGetInstructorsQuery } from "../../services/instructorApi";
+import { useLazyGetRoomsQuery } from "../../services/roomApi";
 import type { ErrorResponse, FieldError } from "../../types";
 import ClassTypeSelector from "./ClassTypeSelector";
 import BasicInfoSection from "./BasicInfoSection";
@@ -78,15 +78,26 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
   const [createRecurring, { isLoading: isRecurringLoading }] =
     useCreateRecurringClassMutation();
 
-  const { data: branchesResponse } = useGetBranchesQuery(undefined, { skip: !open });
-  const { data: instructorsResponse } = useGetInstructorsQuery(
-    formData.branchId ? { branchId: formData.branchId } : undefined,
-    { skip: !open || !formData.branchId }
-  );
-  const { data: roomsResponse } = useGetRoomsQuery(
-    formData.branchId ? { branchId: formData.branchId } : undefined,
-    { skip: !open || !formData.branchId }
-  );
+  const [
+    triggerGetBranches,
+    {
+      data: branchesResponse,
+      isLoading: isBranchesLoading,
+      isFetching: isBranchesFetching,
+    },
+  ] = useLazyGetBranchesQuery();
+  const [
+    triggerGetInstructors,
+    {
+      data: instructorsResponse,
+      isLoading: isInstructorsLoading,
+      isFetching: isInstructorsFetching,
+    },
+  ] = useLazyGetInstructorsQuery();
+  const [
+    triggerGetRooms,
+    { data: roomsResponse, isLoading: isRoomsLoading, isFetching: isRoomsFetching },
+  ] = useLazyGetRoomsQuery();
 
   const isLoading = isSingleLoading || isRecurringLoading;
 
@@ -239,6 +250,14 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
               branches={branches}
               instructors={instructors}
               rooms={rooms}
+              onBranchOpen={() => triggerGetBranches()}
+              onInstructorOpen={() =>
+                triggerGetInstructors({ branchId: formData.branchId })
+              }
+              onRoomOpen={() => triggerGetRooms({ branchId: formData.branchId })}
+              isBranchesLoading={isBranchesLoading || isBranchesFetching}
+              isInstructorsLoading={isInstructorsLoading || isInstructorsFetching}
+              isRoomsLoading={isRoomsLoading || isRoomsFetching}
             />
 
             <ScheduleSection

@@ -11,6 +11,12 @@ interface LocationStaffSectionProps {
   branches: Branch[];
   instructors: Instructor[];
   rooms: RoomType[];
+  onBranchOpen: () => void;
+  onInstructorOpen: () => void;
+  onRoomOpen: () => void;
+  isBranchesLoading?: boolean;
+  isInstructorsLoading?: boolean;
+  isRoomsLoading?: boolean;
 }
 
 const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
@@ -20,6 +26,12 @@ const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
   branches,
   instructors,
   rooms,
+  onBranchOpen,
+  onInstructorOpen,
+  onRoomOpen,
+  isBranchesLoading,
+  isInstructorsLoading,
+  isRoomsLoading,
 }) => {
   return (
     <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
@@ -43,15 +55,24 @@ const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
             error={!!fieldErrors.branchId}
             helperText={fieldErrors.branchId || "Select branch first"}
             required
+            SelectProps={{
+              onOpen: onBranchOpen,
+            }}
             InputProps={{
               startAdornment: <Room sx={{ mr: 1, color: "action.active" }} />,
             }}
           >
-            {branches.map((branch) => (
-              <MenuItem key={branch._id} value={branch._id}>
-                {branch.name}
-              </MenuItem>
-            ))}
+            {isBranchesLoading ? (
+              <MenuItem disabled>Loading branches...</MenuItem>
+            ) : branches.length > 0 ? (
+              branches.map((branch) => (
+                <MenuItem key={branch._id} value={branch._id}>
+                  {branch.name}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>No branches found</MenuItem>
+            )}
           </TextField>
         </Grid>
 
@@ -66,16 +87,28 @@ const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
             error={!!fieldErrors.instructorId}
             helperText={fieldErrors.instructorId}
             required
-            disabled={!formData.branchId}
+            SelectProps={{
+              onOpen: onInstructorOpen,
+            }}
             InputProps={{
               startAdornment: <Person sx={{ mr: 1, color: "action.active" }} />,
             }}
           >
-            {instructors.map((instructor) => (
-              <MenuItem key={instructor._id} value={instructor._id}>
-                {instructor.name}
+            {isInstructorsLoading ? (
+              <MenuItem disabled>Loading instructors...</MenuItem>
+            ) : instructors.length > 0 ? (
+              instructors.map((instructor) => (
+                <MenuItem key={instructor._id} value={instructor._id}>
+                  {instructor.name}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>
+                {formData.branchId
+                  ? "No instructors found"
+                  : "Select branch first"}
               </MenuItem>
-            ))}
+            )}
           </TextField>
         </Grid>
 
@@ -90,16 +123,26 @@ const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
             error={!!fieldErrors.roomId}
             helperText={fieldErrors.roomId}
             required
-            disabled={!formData.branchId}
+            SelectProps={{
+              onOpen: onRoomOpen,
+            }}
             InputProps={{
               startAdornment: <Room sx={{ mr: 1, color: "action.active" }} />,
             }}
           >
-            {rooms.map((room) => (
-              <MenuItem key={room._id} value={room._id}>
-                {room.name}
+            {isRoomsLoading ? (
+              <MenuItem disabled>Loading rooms...</MenuItem>
+            ) : rooms.length > 0 ? (
+              rooms.map((room) => (
+                <MenuItem key={room._id} value={room._id}>
+                  {room.name}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>
+                {formData.branchId ? "No rooms found" : "Select branch first"}
               </MenuItem>
-            ))}
+            )}
           </TextField>
         </Grid>
       </Grid>

@@ -44,10 +44,13 @@ const CalendarPage: React.FC = () => {
   );
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(10);
 
   React.useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
+      setPage(0); // Reset page on search
     }, 300);
 
     return () => {
@@ -103,6 +106,12 @@ const CalendarPage: React.FC = () => {
     return response?.data || [];
   }, [response]);
 
+  const paginatedOccurrences = useMemo(() => {
+    if (displayMode === "calendar") return occurrences;
+    const start = page * limit;
+    return occurrences.slice(start, start + limit);
+  }, [occurrences, displayMode, page, limit]);
+
   const showLoading = isLoading || (isFetching && occurrences.length === 0);
 
   const handleViewChange = (
@@ -116,31 +125,34 @@ const CalendarPage: React.FC = () => {
 
   const handleDisplayModeChange = (
     _event: React.MouseEvent<HTMLElement>,
-    nextMode: "calendar" | "list",
+    newMode: "calendar" | "list" | null,
   ) => {
-    if (nextMode !== null) {
-      setDisplayMode(nextMode);
+    if (newMode !== null) {
+      setDisplayMode(newMode);
+      if (newMode === "list") {
+        setPage(0);
+      }
     }
   };
 
   const handleNavigate = (direction: "prev" | "next" | "today") => {
     if (direction === "today") {
       setCurrentDate(DateTime.now());
-      return;
+    } else {
+      const amount = direction === "next" ? 1 : -1;
+      switch (view) {
+        case "day":
+          setCurrentDate(currentDate.plus({ days: amount }));
+          break;
+        case "week":
+          setCurrentDate(currentDate.plus({ weeks: amount }));
+          break;
+        case "month":
+          setCurrentDate(currentDate.plus({ months: amount }));
+          break;
+      }
     }
-
-    const amount = direction === "next" ? 1 : -1;
-    switch (view) {
-      case "day":
-        setCurrentDate(currentDate.plus({ days: amount }));
-        break;
-      case "week":
-        setCurrentDate(currentDate.plus({ weeks: amount }));
-        break;
-      case "month":
-        setCurrentDate(currentDate.plus({ months: amount }));
-        break;
-    }
+    setPage(0); // Reset page on date change
   };
 
   const getHeaderTitle = () => {
@@ -435,7 +447,19 @@ const CalendarPage: React.FC = () => {
           occurrences={occurrences}
         />
       ) : (
-        <ClassListView occurrences={occurrences} />
+        <ClassListView
+          occurrences={paginatedOccurrences}
+          pagination={{
+            page: page + 1,
+            limit,
+            total: occurrences.length,
+            onPageChange: (newPage) => setPage(newPage - 1),
+            onRowsPerPageChange: (newLimit) => {
+              setLimit(newLimit);
+              setPage(0);
+            },
+          }}
+        />
       )}
 
       <CreateClassModal

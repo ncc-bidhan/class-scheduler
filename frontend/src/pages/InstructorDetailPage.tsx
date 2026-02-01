@@ -14,20 +14,17 @@ import {
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
-  Person as PersonIcon,
   Email as EmailIcon,
   Phone as PhoneIcon,
   Description as BioIcon,
   LocationOn as BranchIcon,
 } from "@mui/icons-material";
 import { useGetInstructorQuery } from "../services/instructorApi";
-import { useGetBranchesQuery } from "../services/branchApi";
 
 const InstructorDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: response, isLoading, error } = useGetInstructorQuery(id!);
-  const { data: branchesResponse } = useGetBranchesQuery();
 
   if (isLoading) {
     return (
@@ -57,10 +54,9 @@ const InstructorDetailPage: React.FC = () => {
   }
 
   const instructor = response.data;
-  const instructorBranches =
-    branchesResponse?.data.filter((b) =>
-      instructor.branchIds.includes(b._id),
-    ) || [];
+  const instructorBranches = instructor.branchIds.filter(
+    (b): b is { _id: string; name: string } => typeof b === "object" && b !== null,
+  );
 
   const renderInfoItem = (
     icon: React.ReactNode,
@@ -119,7 +115,7 @@ const InstructorDetailPage: React.FC = () => {
         </Box>
 
         <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
               Contact Information
             </Typography>
@@ -128,7 +124,7 @@ const InstructorDetailPage: React.FC = () => {
             {renderInfoItem(<PhoneIcon />, "Phone", instructor.phone)}
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
               Assigned Branches
             </Typography>
@@ -154,7 +150,7 @@ const InstructorDetailPage: React.FC = () => {
             )}
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
               Professional Details
             </Typography>

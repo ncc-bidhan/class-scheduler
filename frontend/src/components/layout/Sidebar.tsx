@@ -18,11 +18,13 @@ import {
   PeopleOutlined as PeopleIcon,
   MeetingRoomOutlined as MeetingRoomIcon,
   ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  Menu as MenuIcon,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/ClassFlowHorizontal.png";
 
-import { DRAWER_WIDTH } from "./layout.constants";
+import { DRAWER_WIDTH, COLLAPSED_DRAWER_WIDTH, SIDEBAR_ITEM_HEIGHT } from "./layout.constants";
 
 interface SidebarProps {
   open: boolean;
@@ -52,26 +54,41 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
     }
   };
 
+  const activeIndex = menuItems.findIndex((item) => {
+    if (item.path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(item.path);
+  });
+
   return (
     <Drawer
       variant={isMobile ? "temporary" : "permanent"}
       open={open}
       onClose={isMobile ? onToggle : undefined}
       sx={{
-        width: DRAWER_WIDTH,
+        width: isMobile ? DRAWER_WIDTH : (open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH),
         flexShrink: 0,
+        transition: (theme) =>
+          theme.transitions.create("width", {
+            easing: theme.transitions.easing.sharp,
+            duration: open
+              ? theme.transitions.duration.enteringScreen
+              : theme.transitions.duration.leavingScreen,
+          }),
         [`& .MuiDrawer-paper`]: {
-          width: DRAWER_WIDTH,
+          width: isMobile ? DRAWER_WIDTH : (open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH),
           boxSizing: "border-box",
+          transition: (theme) =>
+            theme.transitions.create("width", {
+              easing: theme.transitions.easing.sharp,
+              duration: open
+                ? theme.transitions.duration.enteringScreen
+                : theme.transitions.duration.leavingScreen,
+            }),
           ...(!isMobile &&
             !open && {
               overflowX: "hidden",
-              transition: (theme) =>
-                theme.transitions.create("width", {
-                  easing: theme.transitions.easing.sharp,
-                  duration: theme.transitions.duration.leavingScreen,
-                }),
-              width: (theme) => theme.spacing(7),
             }),
         },
       }}
@@ -80,44 +97,75 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
         sx={{
           display: "flex",
           alignItems: "center",
-          justifyContent: open ? "space-between" : "flex-end",
-          px: [1.5],
+          justifyContent: "center",
+          px: open ? [1.5] : 0,
+          minHeight: "80px !important",
         }}
       >
         {open && (
+          <>
+            <Box
+              component="img"
+              src={logo}
+              alt="ClassFlow"
+              sx={{
+                height: 60,
+                ml: 1,
+              }}
+            />
+            <Box sx={{ flexGrow: 1 }} />
+            <IconButton onClick={onToggle} sx={{ color: unselectedColor }}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </>
+        )}
+      </Toolbar>
+      <Divider />
+      <List sx={{ position: "relative", p: 0 }}>
+        {activeIndex !== -1 && (
           <Box
-            component="img"
-            src={logo}
-            alt="ClassFlow"
             sx={{
-              height: 80,
-              ml: 1,
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: SIDEBAR_ITEM_HEIGHT,
+              bgcolor: isDarkMode
+                ? "rgba(144, 202, 249, 0.12)"
+                : "rgba(148, 58, 208, 0.08)",
+              borderLeft: `4px solid ${isDarkMode ? "#90caf9" : "#943ad0"}`,
+              transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+              transform: `translateY(${activeIndex * SIDEBAR_ITEM_HEIGHT}px)`,
+              zIndex: 0,
+              pointerEvents: "none",
+              willChange: "transform",
             }}
           />
         )}
-        <IconButton onClick={onToggle} sx={{ color: unselectedColor }}>
-          <ChevronLeftIcon />
-        </IconButton>
-      </Toolbar>
-      <Divider />
-      <List>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               onClick={() => handleNavigation(item.path)}
               selected={location.pathname === item.path}
               sx={{
-                minHeight: 48,
+                height: SIDEBAR_ITEM_HEIGHT,
                 justifyContent: open ? "initial" : "center",
-                px: 2.5,
+                px: open ? 2.5 : 1.5,
                 py: 2,
+                bgcolor: "transparent !important",
+                "&:hover": {
+                  bgcolor: isDarkMode
+                    ? "rgba(255, 255, 255, 0.05) !important"
+                    : "rgba(0, 0, 0, 0.04) !important",
+                },
               }}
             >
               <ListItemIcon
                 sx={{
                   minWidth: 0,
-                  mr: open ? 3 : "auto",
+                  mr: open ? 3 : 0,
                   justifyContent: "center",
+                  zIndex: 1,
                   color:
                     location.pathname === item.path
                       ? isDarkMode
@@ -131,7 +179,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
               <ListItemText
                 primary={item.text}
                 sx={{
+                  display: open ? "block" : "none",
                   opacity: open ? 1 : 0,
+                  zIndex: 1,
                   color:
                     location.pathname === item.path
                       ? isDarkMode

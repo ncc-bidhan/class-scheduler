@@ -12,16 +12,29 @@ export const createBranch = async (req: Request, res: Response) => {
 };
 
 export const getAllBranches = async (req: Request, res: Response) => {
-  const branches = await branchService.getAllBranches();
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+
+  const { branches, total } = await branchService.getAllBranches(page, limit);
+
   return sendSuccess(res, {
     title: "Branches fetched",
     message: "Branch list loaded",
     data: branches,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
   });
 };
 
 export const getBranchById = async (req: Request, res: Response) => {
-  const branch = await branchService.getBranchById(req.params.id);
+  const { id } = req.params;
+  const branch = await branchService.getBranchById(
+    Array.isArray(id) ? id[0] : id,
+  );
   if (!branch) {
     return sendError(res, {
       title: "Not Found",
@@ -37,7 +50,11 @@ export const getBranchById = async (req: Request, res: Response) => {
 };
 
 export const updateBranch = async (req: Request, res: Response) => {
-  const branch = await branchService.updateBranch(req.params.id, req.body);
+  const { id } = req.params;
+  const branch = await branchService.updateBranch(
+    Array.isArray(id) ? id[0] : id,
+    req.body,
+  );
   if (!branch) {
     return sendError(res, {
       title: "Not Found",
@@ -53,7 +70,10 @@ export const updateBranch = async (req: Request, res: Response) => {
 };
 
 export const deleteBranch = async (req: Request, res: Response) => {
-  const branch = await branchService.deleteBranch(req.params.id);
+  const { id } = req.params;
+  const branch = await branchService.deleteBranch(
+    Array.isArray(id) ? id[0] : id,
+  );
   if (!branch) {
     return sendError(res, {
       title: "Not Found",

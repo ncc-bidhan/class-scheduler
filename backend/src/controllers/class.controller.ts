@@ -49,12 +49,18 @@ export const createRecurringClass = async (req: Request, res: Response) => {
 
 export const getOccurrences = async (req: Request, res: Response) => {
   const query = (res.locals.validated?.query ?? req.query) as any;
-  const occurrences = await classService.getOccurrences(query);
+  const result = await classService.getOccurrences(query);
 
   return sendSuccess(res, {
     title: "Classes fetched",
     message: "Class list loaded",
-    data: occurrences,
+    data: result.occurrences,
+    pagination: {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: Math.ceil(result.total / result.limit),
+    },
   });
 };
 

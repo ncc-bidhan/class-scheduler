@@ -25,7 +25,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/authSlice";
 import { type RootState } from "../../store";
 import logo from "../../assets/ClassFlowHorizontal.png";
-import { DRAWER_WIDTH } from "./layout.constants";
+import { DRAWER_WIDTH, COLLAPSED_DRAWER_WIDTH } from "./layout.constants";
 import ChangePasswordModal from "../auth/ChangePasswordModal";
 
 interface HeaderProps {
@@ -41,6 +41,7 @@ const Header: React.FC<HeaderProps> = ({ open, isMobile, onToggle }) => {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
   const profileMenuOpen = Boolean(anchorEl);
 
   const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -62,43 +63,42 @@ const Header: React.FC<HeaderProps> = ({ open, isMobile, onToggle }) => {
   };
 
   return (
-    <AppBar
-      position="fixed"
+    <>
+      <AppBar
+        position="fixed"
       sx={{
-        zIndex: (theme) => theme.zIndex.drawer + 1,
+        zIndex: (theme) => theme.zIndex.drawer - 1,
         transition: (theme) =>
-          theme.transitions.create(["width", "margin", "height"], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-        ...(!isMobile &&
-          open && {
-            marginLeft: DRAWER_WIDTH,
-            width: `calc(100% - ${DRAWER_WIDTH}px)`,
-            height: 70,
-            justifyContent: "center",
-            transition: (theme) =>
-              theme.transitions.create(["width", "margin", "height"], {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
-          }),
+          theme.transitions.create(
+            ["width", "margin", "height", "left", "right", "top"],
+            {
+              easing: theme.transitions.easing.sharp,
+              duration: open
+                ? theme.transitions.duration.enteringScreen
+                : theme.transitions.duration.leavingScreen,
+            }
+          ),
+        ...(!isMobile
+          ? {
+              top: "16px",
+              left: `${(open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH) + 24}px`,
+              right: "24px",
+              width: "auto",
+              borderRadius: "16px", // Softer corners
+              height: 64, // Standard MUI height
+              justifyContent: "center",
+              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)", // Softer shadow
+            }
+          : {
+              top: 0,
+              left: 0,
+              right: 0,
+              width: "100%",
+              height: 56, // Standard mobile height
+            }),
       }}
     >
-      <Toolbar sx={{ height: "100%" }}>
-        {user && (
-          <Typography
-            variant="body1"
-            sx={{
-              ml: 1,
-              mr: 2,
-              fontWeight: 500,
-              display: { xs: "none", sm: "block" },
-            }}
-          > 
-            Welcome, {user.name}
-          </Typography>
-        )}
+      <Toolbar sx={{ height: "100%", px: 2 }}>
         <IconButton
           color="inherit"
           aria-label="open drawer"
@@ -111,99 +111,112 @@ const Header: React.FC<HeaderProps> = ({ open, isMobile, onToggle }) => {
         >
           <MenuIcon />
         </IconButton>
+
         {!open && (
           <Box
             component="img"
             src={logo}
             alt="ClassFlow"
             sx={{
-              height: 80,
-              display: "block",
+              height: 40,
+              mr: 2,
+              filter: "brightness(0) invert(1)",
+              display: { xs: "none", sm: "block" },
             }}
           />
         )}
-        <Box sx={{ flexGrow: 1 }} />
+
         {user && (
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton
-              color="inherit"
-              onClick={handleProfileClick}
-              sx={{ p: 1 }}
-            >
-              <ProfileIcon />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={profileMenuOpen}
-              onClose={handleProfileClose}
-              onClick={handleProfileClose}
-              PaperProps={{
-                elevation: 0,
-                sx: {
-                  overflow: "visible",
-                  filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-                  mt: 1.5,
-                  "& .MuiAvatar-root": {
-                    width: 32,
-                    height: 32,
-                    ml: -0.5,
-                    mr: 1,
-                  },
-                  "&:before": {
-                    content: '""',
-                    display: "block",
-                    position: "absolute",
-                    top: 0,
-                    right: 14,
-                    width: 10,
-                    height: 10,
-                    bgcolor: "background.paper",
-                    transform: "translateY(-50%) rotate(45deg)",
-                    zIndex: 0,
-                  },
-                },
-              }}
-              transformOrigin={{ horizontal: "right", vertical: "top" }}
-              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-            >
-              <MenuItem>
-                <ListItemIcon>
-                  {mode === "dark" ? (
-                    <LightModeIcon fontSize="small" />
-                  ) : (
-                    <DarkModeIcon fontSize="small" />
-                  )}
-                </ListItemIcon>
-                <ListItemText primary="Dark Mode" />
-                <Switch
-                  edge="end"
-                  checked={mode === "dark"}
-                  onChange={toggleTheme}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </MenuItem>
-              <MenuItem onClick={handleChangePassword}>
-                <ListItemIcon>
-                  <PasswordIcon fontSize="small" />
-                </ListItemIcon>
-                Change Password
-              </MenuItem>
-              <Divider />
-              <MenuItem onClick={handleLogout}>
-                <ListItemIcon>
-                  <LogoutIcon fontSize="small" />
-                </ListItemIcon>
-                Logout
-              </MenuItem>
-            </Menu>
-          </Box>
+          <Typography
+            variant="body1"
+            sx={{
+              fontWeight: 500,
+              display: { xs: "none", md: "block" },
+            }}
+          >
+            Welcome, {user.name}
+          </Typography>
         )}
-      </Toolbar>
-      <ChangePasswordModal
-        open={isPasswordModalOpen}
-        onClose={() => setIsPasswordModalOpen(false)}
-      />
-    </AppBar>
+
+        <Box sx={{ flexGrow: 1 }} />
+
+          {user && (
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <IconButton color="inherit" onClick={handleProfileClick} sx={{ p: 1 }}>
+                <ProfileIcon />
+              </IconButton>
+
+              <Menu
+                anchorEl={anchorEl}
+                open={profileMenuOpen}
+                onClose={handleProfileClose}
+                onClick={handleProfileClose}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: "visible",
+                    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                    mt: 1.5,
+                    "&:before": {
+                      content: '""',
+                      display: "block",
+                      position: "absolute",
+                      top: 0,
+                      right: 14,
+                      width: 10,
+                      height: 10,
+                      bgcolor: "background.paper",
+                      transform: "translateY(-50%) rotate(45deg)",
+                      zIndex: 0,
+                    },
+                  },
+                }}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+              >
+                <MenuItem>
+                  <ListItemIcon>
+                    {mode === "dark" ? (
+                      <LightModeIcon fontSize="small" />
+                    ) : (
+                      <DarkModeIcon fontSize="small" />
+                    )}
+                  </ListItemIcon>
+                  <ListItemText primary="Dark Mode" />
+                  <Switch
+                    edge="end"
+                    checked={mode === "dark"}
+                    onChange={toggleTheme}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </MenuItem>
+
+                <MenuItem onClick={handleChangePassword}>
+                  <ListItemIcon>
+                    <PasswordIcon fontSize="small" />
+                  </ListItemIcon>
+                  Change Password
+                </MenuItem>
+
+                <Divider />
+
+                <MenuItem onClick={handleLogout}>
+                  <ListItemIcon>
+                    <LogoutIcon fontSize="small" />
+                  </ListItemIcon>
+                  Logout
+                </MenuItem>
+              </Menu>
+            </Box>
+          )}
+        </Toolbar>
+
+        <ChangePasswordModal
+          open={isPasswordModalOpen}
+          onClose={() => setIsPasswordModalOpen(false)}
+        />
+      </AppBar>
+    </>
   );
 };
 

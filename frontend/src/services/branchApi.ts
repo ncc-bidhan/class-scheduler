@@ -3,8 +3,14 @@ import type { Branch, SuccessResponse } from "../types";
 
 export const branchApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getBranches: builder.query<SuccessResponse<Branch[]>, void>({
-      query: () => "branches",
+    getBranches: builder.query<
+      SuccessResponse<Branch[]>,
+      { page?: number; limit?: number } | void
+    >({
+      query: (params) => ({
+        url: "branches",
+        params: params || {},
+      }),
       providesTags: (result) =>
         result
           ? [
@@ -51,6 +57,7 @@ export const branchApi = api.injectEndpoints({
 
 export const {
   useGetBranchesQuery,
+  useLazyGetBranchesQuery,
   useGetBranchQuery,
   useCreateBranchMutation,
   useUpdateBranchMutation,

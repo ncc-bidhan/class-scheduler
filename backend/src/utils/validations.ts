@@ -188,6 +188,11 @@ export const occurrencesQuerySchema = z
     instructorId: objectIdSchema.optional(),
     roomId: objectIdSchema.optional(),
     search: z.string().optional(),
+    page: z.preprocess((val) => Number(val), z.number().int().min(1)).optional(),
+    limit: z.preprocess(
+      (val) => Number(val),
+      z.number().int().min(1).max(100),
+    ).optional(),
   })
   .superRefine((val, ctx) => {
     if (val.from >= val.to) {

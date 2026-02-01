@@ -1,101 +1,76 @@
 import React from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-  Box,
-  Chip,
-} from "@mui/material";
+import { Typography, Chip } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { DateTime } from "luxon";
 import type { Occurrence } from "../types";
+import AppTable from "./AppTable";
+import type { Column } from "./AppTable";
 
 interface ClassListViewProps {
   occurrences: Occurrence[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    onPageChange: (newPage: number) => void;
+    onRowsPerPageChange: (newLimit: number) => void;
+  };
 }
 
-const ClassListView: React.FC<ClassListViewProps> = ({ occurrences }) => {
+const ClassListView: React.FC<ClassListViewProps> = ({
+  occurrences,
+  pagination,
+}) => {
   const navigate = useNavigate();
-  if (occurrences.length === 0) {
-    return (
-      <Paper
-        variant="outlined"
-        sx={{
-          p: 4,
-          textAlign: "center",
-          borderRadius: 3,
-          bgcolor: "background.paper",
-        }}
-      >
-        <Typography variant="body1" color="text.secondary">
-          No classes scheduled for this period.
+
+  const columns: Column<Occurrence>[] = [
+    {
+      id: "className",
+      label: "Class Name",
+      render: (occ) => (
+        <Typography variant="body2" fontWeight="medium">
+          {occ.className || `Class ${occ.classId.slice(-4)}`}
         </Typography>
-      </Paper>
-    );
-  }
+      ),
+    },
+    {
+      id: "date",
+      label: "Date",
+      render: (occ) =>
+        DateTime.fromISO(occ.startAt).toLocaleString(DateTime.DATE_MED),
+    },
+    {
+      id: "time",
+      label: "Time",
+      render: (occ) => {
+        const start = DateTime.fromISO(occ.startAt);
+        const end = DateTime.fromISO(occ.endAt);
+        return `${start.toFormat("HH:mm")} - ${end.toFormat("HH:mm")}`;
+      },
+    },
+    {
+      id: "instructorName",
+      label: "Instructor",
+      render: (occ) =>
+        occ.instructorName ? (
+          <Chip label={occ.instructorName} size="small" variant="outlined" />
+        ) : (
+          "-"
+        ),
+    },
+    { id: "roomName", label: "Room" },
+    { id: "branchName", label: "Branch" },
+  ];
 
   return (
-    <TableContainer
-      component={Paper}
-      variant="outlined"
-      sx={{ borderRadius: 3, overflow: "hidden" }}
-    >
-      <Table>
-        <TableHead sx={{ bgcolor: "action.hover" }}>
-          <TableRow>
-            <TableCell sx={{ fontWeight: "bold" }}>Class Name</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>Date</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>Time</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>Instructor</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>Room</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>Branch</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {occurrences.map((occ, index) => {
-            const start = DateTime.fromISO(occ.startAt);
-            const end = DateTime.fromISO(occ.endAt);
-
-            return (
-              <TableRow
-                key={`${occ.classId}-${index}`}
-                hover
-                onClick={() => navigate(`/classes/${occ.classId}`)}
-                sx={{ cursor: "pointer" }}
-              >
-                <TableCell>
-                  <Typography variant="body2" fontWeight="medium">
-                    {occ.className || `Class ${occ.classId.slice(-4)}`}
-                  </Typography>
-                </TableCell>
-                <TableCell>{start.toLocaleString(DateTime.DATE_MED)}</TableCell>
-                <TableCell>
-                  {start.toFormat("HH:mm")} - {end.toFormat("HH:mm")}
-                </TableCell>
-                <TableCell>
-                  {occ.instructorName ? (
-                    <Chip
-                      label={occ.instructorName}
-                      size="small"
-                      variant="outlined"
-                    />
-                  ) : (
-                    "-"
-                  )}
-                </TableCell>
-                <TableCell>{occ.roomName || "-"}</TableCell>
-                <TableCell>{occ.branchName || "-"}</TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <AppTable
+      columns={columns}
+      data={occurrences}
+      onRowClick={(occ) => navigate(`/classes/${occ.classId}`)}
+      emptyMessage="No classes scheduled for this period."
+      rowKey={(occ) => `${occ.classId}-${occ.startAt}`}
+      pagination={pagination}
+    />
   );
 };
 

@@ -3,18 +3,10 @@ import {
   Container,
   Typography,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   IconButton,
   Modal,
   TextField,
   Stack,
-  CircularProgress,
   Box,
   Divider,
 } from "@mui/material";
@@ -31,6 +23,8 @@ import {
   useDeleteBranchMutation,
 } from "../services/branchApi";
 import type { Branch } from "../types";
+import AppTable from "../components/AppTable";
+import type { Column } from "../components/AppTable";
 
 const modalStyle = {
   position: "absolute",
@@ -56,7 +50,13 @@ export function BranchesPage() {
     timezone: "UTC",
   });
 
-  const { data: branchesResponse, isLoading } = useGetBranchesQuery();
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  const { data: branchesResponse, isLoading } = useGetBranchesQuery({
+    page,
+    limit,
+  });
   const [createBranch] = useCreateBranchMutation();
   const [updateBranch] = useUpdateBranchMutation();
   const [deleteBranch] = useDeleteBranchMutation();
@@ -112,12 +112,39 @@ export function BranchesPage() {
     }
   };
 
-  if (isLoading)
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
+  const columns: Column<Branch>[] = [
+    { id: "name", label: "Name" },
+    { id: "address", label: "Address" },
+    { id: "phone", label: "Phone" },
+    { id: "timezone", label: "Timezone" },
+    {
+      id: "actions",
+      label: "Actions",
+      align: "right",
+      render: (branch) => (
+        <Stack direction="row" spacing={1} justifyContent="flex-end">
+          <IconButton
+            color="primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenModal(branch);
+            }}
+          >
+            <IconEdit fontSize="small" />
+          </IconButton>
+          <IconButton
+            color="error"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(branch._id);
+            }}
+          >
+            <IconTrash fontSize="small" />
+          </IconButton>
+        </Stack>
+      ),
+    },
+  ];
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
@@ -149,73 +176,25 @@ export function BranchesPage() {
         </Button>
       </Box>
 
-      <TableContainer
-        component={Paper}
-        variant="outlined"
-        sx={{ bgcolor: "background.paper" }}
-      >
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Address</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Timezone</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {branchesResponse?.data.map((branch) => (
-              <TableRow
-                key={branch._id}
-                hover
-                onClick={() => navigate(`/branches/${branch._id}`)}
-                sx={{ cursor: "pointer" }}
-              >
-                <TableCell>{branch.name}</TableCell>
-                <TableCell>{branch.address || "-"}</TableCell>
-                <TableCell>{branch.phone || "-"}</TableCell>
-                <TableCell>{branch.timezone}</TableCell>
-                <TableCell align="right">
-                  <Stack direction="row" spacing={1} justifyContent="flex-end">
-                    <IconButton
-                      color="primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenModal(branch);
-                      }}
-                    >
-                      <IconEdit fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      color="error"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(branch._id);
-                      }}
-                    >
-                      <IconTrash fontSize="small" />
-                    </IconButton>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
-            {!branchesResponse?.data.length && (
-              <TableRow>
-                <TableCell colSpan={5} align="center">
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ py: 2 }}
-                  >
-                    No branches found. Add your first branch!
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <AppTable<Branch>
+        columns={columns}
+        data={branchesResponse?.data || []}
+        isLoading={isLoading}
+        onRowClick={(branch) => navigate(`/branches/${branch._id}`)}
+        emptyMessage="No branches found. Add your first branch!"
+        pagination={
+          branchesResponse?.pagination
+            ? {
+                ...branchesResponse.pagination,
+                onPageChange: setPage,
+                onRowsPerPageChange: (newLimit) => {
+                  setLimit(newLimit);
+                  setPage(1);
+                },
+              }
+            : undefined
+        }
+      />
 
       <Modal open={opened} onClose={() => setOpened(false)}>
         <Box sx={modalStyle}>

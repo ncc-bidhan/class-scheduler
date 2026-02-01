@@ -4,7 +4,7 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
   palette: {
     mode,
     primary: {
-      main: mode === "dark" ? "#90caf9" : "#1976d2",
+      main: mode === "dark" ? "#90caf9" : "#943ad0",
     },
     secondary: {
       main: mode === "dark" ? "#f48fb1" : "#9c27b0",
@@ -18,6 +18,29 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
     fontFamily: '"Montserrat", "Roboto", "Helvetica", "Arial", sans-serif',
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          scrollbarColor: `${mode === "dark" ? "#90caf9" : "#943ad0"} transparent`,
+          "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
+            width: "8px",
+            height: "8px",
+          },
+          "&::-webkit-scrollbar-track, & *::-webkit-scrollbar-track": {
+            background: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
+            backgroundColor: mode === "dark" ? "#90caf9" : "#943ad0",
+            borderRadius: "10px",
+            border: "2px solid transparent",
+            backgroundClip: "content-box",
+          },
+          "&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: mode === "dark" ? "#64b5f6" : "#7b1fa2",
+          },
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {
@@ -28,7 +51,7 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: mode === "dark" ? "#1e1e1e" : "#1976d2",
+          backgroundColor: mode === "dark" ? "#1e1e1e" : "#943ad0",
         },
       },
     },

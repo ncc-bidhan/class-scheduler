@@ -101,7 +101,7 @@ export interface Instructor {
   bio?: string;
   email?: string;
   phone?: string;
-  branchIds: string[];
+  branchIds: (string | { _id: string; name: string })[];
   createdAt: string;
   updatedAt: string;
 }
@@ -109,7 +109,7 @@ export interface Instructor {
 export interface Room {
   _id: string;
   name: string;
-  branchId: string;
+  branchId: string | { _id: string; name: string };
   capacity?: number;
   createdAt: string;
   updatedAt: string;

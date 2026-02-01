@@ -9,6 +9,15 @@ type OccurrenceQuery = {
   instructorId?: string;
   roomId?: string;
   search?: string;
+  page?: number;
+  limit?: number;
+};
+
+export type PaginatedOccurrences = {
+  occurrences: Occurrence[];
+  total: number;
+  page: number;
+  limit: number;
 };
 
 export type FieldError = { field: string; message: string };
@@ -139,7 +148,7 @@ export const createRecurring = async (payload: any): Promise<IClass> => {
 
 export const getOccurrences = async (
   query: OccurrenceQuery,
-): Promise<Occurrence[]> => {
+): Promise<PaginatedOccurrences> => {
   const filter: any = {};
   if (query.branchId) filter.branchId = query.branchId;
   if (query.instructorId) filter.instructorId = query.instructorId;
@@ -165,7 +174,20 @@ export const getOccurrences = async (
   all.sort(
     (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
   );
-  return all;
+
+  const total = all.length;
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || (total > 0 ? total : 10); // Default to all (if > 0) or 10
+  const skip = (page - 1) * limit;
+
+  const paginated = all.slice(skip, skip + limit);
+
+  return {
+    occurrences: paginated,
+    total,
+    page,
+    limit,
+  };
 };
 
 export const getById = async (id: string): Promise<IClass | null> => {

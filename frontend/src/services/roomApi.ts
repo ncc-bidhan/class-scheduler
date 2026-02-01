@@ -3,7 +3,10 @@ import type { Room, SuccessResponse } from "../types";
 
 export const roomApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getRooms: builder.query<SuccessResponse<Room[]>, { branchId?: string } | void>({
+    getRooms: builder.query<
+      SuccessResponse<Room[]>,
+      { branchId?: string; page?: number; limit?: number } | void
+    >({
       query: (params) => ({
         url: "rooms",
         params: params || {},
@@ -54,6 +57,7 @@ export const roomApi = api.injectEndpoints({
 
 export const {
   useGetRoomsQuery,
+  useLazyGetRoomsQuery,
   useGetRoomQuery,
   useCreateRoomMutation,
   useUpdateRoomMutation,
