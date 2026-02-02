@@ -311,29 +311,28 @@ export function InstructorsPage() {
                 onChange={handleInputChange}
                 sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5 } }}
               />
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    label="Email Address"
-                    name="email"
-                    fullWidth
-                    variant="outlined"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5 } }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    label="Phone Number"
-                    name="phone"
-                    fullWidth
-                    variant="outlined"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5 } }}
-                  />
-                </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Email Address"
+                  name="email"
+                  fullWidth
+                  variant="outlined"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5 } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Phone Number"
+                  name="phone"
+                  fullWidth
+                  variant="outlined"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5 } }}
+                />
               </Grid>
 
               <TextField
