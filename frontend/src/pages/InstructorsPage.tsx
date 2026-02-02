@@ -17,6 +17,7 @@ import {
   EditOutlined as IconEdit,
   DeleteOutlined as IconTrash,
   AddOutlined as IconPlus,
+  InfoOutlined as IconInfo,
 } from "@mui/icons-material";
 import {
   useGetInstructorsQuery,
@@ -166,6 +167,15 @@ export function InstructorsPage() {
       render: (instructor) => (
         <Stack direction="row" spacing={1} justifyContent="flex-end">
           <IconButton
+            color="info"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/instructors/${instructor._id}`);
+            }}
+          >
+            <IconInfo fontSize="small" />
+          </IconButton>
+          <IconButton
             color="primary"
             onClick={(e) => {
               e.stopPropagation();
@@ -248,7 +258,6 @@ export function InstructorsPage() {
         columns={columns}
         data={instructorsResponse?.data || []}
         isLoading={isLoading}
-        onRowClick={(instructor) => navigate(`/instructors/${instructor._id}`)}
         emptyMessage="No instructors found. Add your first instructor!"
         pagination={
           instructorsResponse?.pagination

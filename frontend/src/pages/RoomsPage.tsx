@@ -16,6 +16,7 @@ import {
   EditOutlined as IconEdit,
   DeleteOutlined as IconTrash,
   AddOutlined as IconPlus,
+  InfoOutlined as IconInfo,
 } from "@mui/icons-material";
 import {
   useGetRoomsQuery,
@@ -157,6 +158,15 @@ export function RoomsPage() {
       render: (room) => (
         <Stack direction="row" spacing={1} justifyContent="flex-end">
           <IconButton
+            color="info"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/rooms/${room._id}`);
+            }}
+          >
+            <IconInfo fontSize="small" />
+          </IconButton>
+          <IconButton
             color="primary"
             onClick={(e) => {
               e.stopPropagation();
@@ -239,7 +249,6 @@ export function RoomsPage() {
         columns={columns}
         data={roomsResponse?.data || []}
         isLoading={isLoading}
-        onRowClick={(room) => navigate(`/rooms/${room._id}`)}
         emptyMessage="No rooms found. Add your first room!"
         pagination={
           roomsResponse?.pagination

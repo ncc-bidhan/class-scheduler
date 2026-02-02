@@ -1,5 +1,6 @@
 import React from "react";
-import { Typography, Chip } from "@mui/material";
+import { Typography, Chip, IconButton, Stack } from "@mui/material";
+import { InfoOutlined as IconInfo } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { DateTime } from "luxon";
 import type { Occurrence } from "../types";
@@ -60,13 +61,30 @@ const ClassListView: React.FC<ClassListViewProps> = ({
     },
     { id: "roomName", label: "Room" },
     { id: "branchName", label: "Branch" },
+    {
+      id: "actions",
+      label: "Actions",
+      align: "right",
+      render: (occ) => (
+        <Stack direction="row" spacing={1} justifyContent="flex-end">
+          <IconButton
+            color="info"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/classes/${occ.classId}`);
+            }}
+          >
+            <IconInfo fontSize="small" />
+          </IconButton>
+        </Stack>
+      ),
+    },
   ];
 
   return (
     <AppTable
       columns={columns}
       data={occurrences}
-      onRowClick={(occ) => navigate(`/classes/${occ.classId}`)}
       emptyMessage="No classes scheduled for this period."
       rowKey={(occ) => `${occ.classId}-${occ.startAt}`}
       pagination={pagination}

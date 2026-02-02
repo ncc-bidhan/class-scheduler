@@ -16,6 +16,7 @@ import {
   EditOutlined as IconEdit,
   DeleteOutlined as IconTrash,
   AddOutlined as IconPlus,
+  InfoOutlined as IconInfo,
 } from "@mui/icons-material";
 import {
   useGetBranchesQuery,
@@ -129,6 +130,15 @@ export function BranchesPage() {
       render: (branch) => (
         <Stack direction="row" spacing={1} justifyContent="flex-end">
           <IconButton
+            color="info"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/branches/${branch._id}`);
+            }}
+          >
+            <IconInfo fontSize="small" />
+          </IconButton>
+          <IconButton
             color="primary"
             onClick={(e) => {
               e.stopPropagation();
@@ -211,7 +221,6 @@ export function BranchesPage() {
         columns={columns}
         data={branchesResponse?.data || []}
         isLoading={isLoading}
-        onRowClick={(branch) => navigate(`/branches/${branch._id}`)}
         emptyMessage="No branches found. Add your first branch!"
         pagination={
           branchesResponse?.pagination
