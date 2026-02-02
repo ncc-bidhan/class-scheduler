@@ -24,7 +24,11 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/ClassFlowHorizontal.png";
 
-import { DRAWER_WIDTH, COLLAPSED_DRAWER_WIDTH, SIDEBAR_ITEM_HEIGHT } from "./layout.constants";
+import {
+  DRAWER_WIDTH,
+  COLLAPSED_DRAWER_WIDTH,
+  SIDEBAR_ITEM_HEIGHT,
+} from "./layout.constants";
 
 interface SidebarProps {
   open: boolean;
@@ -67,7 +71,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
       open={open}
       onClose={isMobile ? onToggle : undefined}
       sx={{
-        width: isMobile ? DRAWER_WIDTH : (open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH),
+        width: isMobile
+          ? DRAWER_WIDTH
+          : open
+            ? DRAWER_WIDTH
+            : COLLAPSED_DRAWER_WIDTH,
         flexShrink: 0,
         transition: (theme) =>
           theme.transitions.create("width", {
@@ -77,7 +85,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
               : theme.transitions.duration.leavingScreen,
           }),
         [`& .MuiDrawer-paper`]: {
-          width: isMobile ? DRAWER_WIDTH : (open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH),
+          width: isMobile
+            ? DRAWER_WIDTH
+            : open
+              ? DRAWER_WIDTH
+              : COLLAPSED_DRAWER_WIDTH,
           boxSizing: "border-box",
           transition: (theme) =>
             theme.transitions.create("width", {
@@ -102,7 +114,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
           minHeight: "80px !important",
         }}
       >
-        {open && (
+        {open ? (
           <>
             <Box
               component="img"
@@ -118,6 +130,16 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
               <ChevronLeftIcon />
             </IconButton>
           </>
+        ) : (
+          <Box
+            component="img"
+            src="/favicon.png"
+            alt="ClassFlow Favicon"
+            sx={{
+              height: 40,
+              width: 40,
+            }}
+          />
         )}
       </Toolbar>
       <Divider />

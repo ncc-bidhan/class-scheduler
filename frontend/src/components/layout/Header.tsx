@@ -24,7 +24,6 @@ import { useThemeMode } from "../../contexts/ThemeContext";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/authSlice";
 import { type RootState } from "../../store";
-import logo from "../../assets/ClassFlowHorizontal.png";
 import { DRAWER_WIDTH, COLLAPSED_DRAWER_WIDTH } from "./layout.constants";
 import ChangePasswordModal from "../auth/ChangePasswordModal";
 
@@ -66,83 +65,73 @@ const Header: React.FC<HeaderProps> = ({ open, isMobile, onToggle }) => {
     <>
       <AppBar
         position="fixed"
-      sx={{
-        zIndex: (theme) => theme.zIndex.drawer - 1,
-        transition: (theme) =>
-          theme.transitions.create(
-            ["width", "margin", "height", "left", "right", "top"],
-            {
-              easing: theme.transitions.easing.sharp,
-              duration: open
-                ? theme.transitions.duration.enteringScreen
-                : theme.transitions.duration.leavingScreen,
-            }
-          ),
-        ...(!isMobile
-          ? {
-              top: "16px",
-              left: `${(open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH) + 24}px`,
-              right: "24px",
-              width: "auto",
-              borderRadius: "16px", // Softer corners
-              height: 64, // Standard MUI height
-              justifyContent: "center",
-              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)", // Softer shadow
-            }
-          : {
-              top: 0,
-              left: 0,
-              right: 0,
-              width: "100%",
-              height: 56, // Standard mobile height
-            }),
-      }}
-    >
-      <Toolbar sx={{ height: "100%", px: 2 }}>
-        <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          onClick={onToggle}
-          edge="start"
-          sx={{
-            marginRight: 2,
-            ...(!isMobile && open && { display: "none" }),
-          }}
-        >
-          <MenuIcon />
-        </IconButton>
-
-        {!open && (
-          <Box
-            component="img"
-            src={logo}
-            alt="ClassFlow"
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer - 1,
+          transition: (theme) =>
+            theme.transitions.create(
+              ["width", "margin", "height", "left", "right", "top"],
+              {
+                easing: theme.transitions.easing.sharp,
+                duration: open
+                  ? theme.transitions.duration.enteringScreen
+                  : theme.transitions.duration.leavingScreen,
+              },
+            ),
+          ...(!isMobile
+            ? {
+                top: "16px",
+                left: `${(open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH) + 24}px`,
+                right: "24px",
+                width: "auto",
+                borderRadius: "16px", // Softer corners
+                height: 64, // Standard MUI height
+                justifyContent: "center",
+                boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)", // Softer shadow
+              }
+            : {
+                top: 0,
+                left: 0,
+                right: 0,
+                width: "100%",
+                height: 56, // Standard mobile height
+              }),
+        }}
+      >
+        <Toolbar sx={{ height: "100%", px: 2 }}>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={onToggle}
+            edge="start"
             sx={{
-              height: 40,
-              mr: 2,
-              filter: "brightness(0) invert(1)",
-              display: { xs: "none", sm: "block" },
-            }}
-          />
-        )}
-
-        {user && (
-          <Typography
-            variant="body1"
-            sx={{
-              fontWeight: 500,
-              display: { xs: "none", md: "block" },
+              marginRight: 2,
+              ...(!isMobile && open && { display: "none" }),
             }}
           >
-            Welcome, {user.name}
-          </Typography>
-        )}
+            <MenuIcon />
+          </IconButton>
 
-        <Box sx={{ flexGrow: 1 }} />
+          {user && (
+            <Typography
+              variant="body1"
+              sx={{
+                fontWeight: 500,
+                display: { xs: "none", md: "block" },
+              }}
+            >
+              Welcome, {user.name}
+            </Typography>
+          )}
+
+          <Box sx={{ flexGrow: 1 }} />
 
           {user && (
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <IconButton color="inherit" onClick={handleProfileClick} sx={{ p: 1 }}>
+              <IconButton
+                color="inherit"
+                onClick={handleProfileClick}
+                sx={{ p: 1 }}
+              >
                 <ProfileIcon />
               </IconButton>
 
