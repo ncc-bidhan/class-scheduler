@@ -107,7 +107,6 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
 
   const isLoading = isSingleLoading || isRecurringLoading;
 
-  // Memoized values for better performance
   const branches = useMemo(
     () => branchesResponse?.data || [],
     [branchesResponse],

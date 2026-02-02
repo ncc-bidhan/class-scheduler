@@ -3,7 +3,6 @@ import {
   Drawer,
   Toolbar,
   List,
-  Divider,
   IconButton,
   ListItem,
   ListItemButton,
@@ -12,15 +11,12 @@ import {
   Box,
   useTheme,
 } from "@mui/material";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   CalendarMonthOutlined as CalendarIcon,
   BusinessOutlined as BusinessIcon,
   PeopleOutlined as PeopleIcon,
   MeetingRoomOutlined as MeetingRoomIcon,
   ChevronLeftOutlined as ChevronLeftIcon,
-  ChevronRightOutlined as ChevronRightIcon,
-  MenuOutlined as MenuIcon,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/ClassFlowHorizontal.png";

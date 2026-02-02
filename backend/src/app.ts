@@ -1,8 +1,10 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+
 import { errorHandler, notFound } from "./middleware/errorHandler";
 import { sendSuccess } from "./utils/response";
+
 import classRoutes from "./routes/class.routes";
 import branchRoutes from "./routes/branch.routes";
 import instructorRoutes from "./routes/instructor.routes";

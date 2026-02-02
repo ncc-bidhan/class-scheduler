@@ -29,9 +29,9 @@ export interface IClass extends Document {
     timeSlots?: TimeSlot[];
 
     // weekly
-    byWeekday?: number[]; // 0..6
-    timeSlotsByWeekday?: mongoose.Types.Map<TimeSlot[]>; // key: "0".."6"
-    byMonthDay?: number[]; // 1..31
+    byWeekday?: number[];
+    timeSlotsByWeekday?: mongoose.Types.Map<TimeSlot[]>;
+    byMonthDay?: number[];
     rrule?: string;
   };
 }

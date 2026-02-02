@@ -1,12 +1,10 @@
 import { z } from "zod";
 
-/** Mongo ObjectId */
 const objectIdSchema = z
   .string()
   .length(24, "Invalid ID format")
   .regex(/^[0-9a-fA-F]+$/, "Invalid ID format");
 
-/** "HH:mm" 24h */
 const hhmmSchema = z
   .string()
   .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Time must be in HH:mm format");
@@ -15,7 +13,6 @@ const uniqueTimeSlots = (slots: { startTime: string; endTime: string }[]) =>
   new Set(slots.map((s) => `${s.startTime}-${s.endTime}`)).size ===
   slots.length;
 
-/** Basic timeslot */
 const timeSlotSchema = z
   .object({
     startTime: hhmmSchema,
@@ -31,7 +28,6 @@ const timeSlotSchema = z
     }
   });
 
-/** Shared class fields */
 const baseSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   description: z.string().max(500).optional(),
@@ -47,7 +43,6 @@ const baseSchema = z.object({
   allowDropIn: z.boolean().default(false),
 });
 
-/** Single */
 export const createSingleClassSchema = baseSchema
   .extend({
     type: z.literal("single"),
@@ -68,7 +63,6 @@ export const createSingleClassSchema = baseSchema
     }
   });
 
-/** Daily recurrence */
 const dailyRecurrence = z.object({
   freq: z.literal("daily"),
   interval: z.number().int().min(1).default(1),
@@ -78,7 +72,6 @@ const dailyRecurrence = z.object({
     .refine(uniqueTimeSlots, "Duplicate time slots are not allowed"),
 });
 
-/** Weekly recurrence */
 const weeklyRecurrence = z
   .object({
     freq: z.literal("weekly"),
@@ -119,7 +112,6 @@ const weeklyRecurrence = z
     }
   });
 
-/** Monthly recurrence */
 const monthlyRecurrence = z.object({
   freq: z.literal("monthly"),
   interval: z.number().int().min(1).default(1),
@@ -136,7 +128,6 @@ const monthlyRecurrence = z.object({
     .refine(uniqueTimeSlots, "Duplicate time slots are not allowed"),
 });
 
-/** Custom recurrence */
 const customRecurrence = z.object({
   freq: z.literal("custom"),
   rrule: z.string().min(1, "RRULE is required"),
@@ -174,7 +165,6 @@ export const createRecurringClassSchema = baseSchema
     }
   });
 
-/** Occurrences query */
 export const occurrencesQuerySchema = z
   .object({
     from: z
@@ -204,7 +194,6 @@ export const occurrencesQuerySchema = z
     }
   });
 
-/** Branch */
 export const branchSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   address: z.string().max(200).optional(),
@@ -212,7 +201,6 @@ export const branchSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
 });
 
-/** Instructor */
 export const instructorSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   bio: z.string().max(1000).optional(),
@@ -221,7 +209,6 @@ export const instructorSchema = z.object({
   branchIds: z.array(objectIdSchema).min(1, "At least one branch is required"),
 });
 
-/** Room */
 export const roomSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   branchId: objectIdSchema,

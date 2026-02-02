@@ -39,7 +39,7 @@ const makeISO = (date: DateTime, slot: TimeSlot) => {
   return { startISO: start.toISO()!, endISO: end.toISO()! };
 };
 
-const luxonWeekdayToSun0 = (luxonWeekday: number) => luxonWeekday % 7; // Sun=0
+const luxonWeekdayToSun0 = (luxonWeekday: number) => luxonWeekday % 7;
 
 export const expandOccurrencesForClass = (
   doc: IClass,
@@ -63,7 +63,6 @@ export const expandOccurrencesForClass = (
     branchName,
   };
 
-  // SINGLE
   if (doc.type === "single") {
     if (!doc.startAt || !doc.endAt) return [];
     const s = DateTime.fromJSDate(doc.startAt).toISO()!;
@@ -73,7 +72,6 @@ export const expandOccurrencesForClass = (
     return [];
   }
 
-  // RECURRING
   if (!doc.dtstart || !doc.recurrence) return [];
 
   const dtstart = DateTime.fromJSDate(doc.dtstart);
@@ -86,7 +84,6 @@ export const expandOccurrencesForClass = (
   const rec = doc.recurrence;
   const out: Occurrence[] = [];
 
-  // DAILY
   if (rec.freq === "daily") {
     const interval = Math.max(1, rec.interval ?? 1);
     const slots = rec.timeSlots ?? [];
@@ -110,7 +107,6 @@ export const expandOccurrencesForClass = (
     }
   }
 
-  // WEEKLY
   if (rec.freq === "weekly") {
     const interval = Math.max(1, rec.interval ?? 1);
     const byWeekday = rec.byWeekday ?? [];
@@ -131,7 +127,7 @@ export const expandOccurrencesForClass = (
       );
 
       if (weekDiff >= 0 && weekDiff % interval === 0) {
-        const luxonW = cursor.weekday; // 1=Mon...7=Sun
+        const luxonW = cursor.weekday;
         const sun0 = luxonWeekdayToSun0(luxonW);
 
         if (byWeekday.includes(sun0)) {
@@ -148,7 +144,6 @@ export const expandOccurrencesForClass = (
     }
   }
 
-  // MONTHLY
   if (rec.freq === "monthly") {
     const interval = Math.max(1, rec.interval ?? 1);
     const byMonthDay = rec.byMonthDay ?? [];
@@ -182,7 +177,6 @@ export const expandOccurrencesForClass = (
     }
   }
 
-  // CUSTOM
   if (rec.freq === "custom" && rec.rrule) {
     try {
       const rrule = RRule.fromString(rec.rrule);

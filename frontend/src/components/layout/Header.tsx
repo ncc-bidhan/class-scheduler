@@ -83,17 +83,17 @@ const Header: React.FC<HeaderProps> = ({ open, isMobile, onToggle }) => {
                 left: `${(open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH) + 24}px`,
                 right: "24px",
                 width: "auto",
-                borderRadius: "16px", // Softer corners
-                height: 64, // Standard MUI height
+                borderRadius: "16px",
+                height: 64,
                 justifyContent: "center",
-                boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)", // Softer shadow
+                boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
               }
             : {
                 top: 0,
                 left: 0,
                 right: 0,
                 width: "100%",
-                height: 56, // Standard mobile height
+                height: 56,
               }),
         }}
       >

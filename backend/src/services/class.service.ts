@@ -119,7 +119,6 @@ export const createRecurring = async (payload: any): Promise<IClass> => {
 
   const fromISO = clean.dtstart;
 
-  // conflict validation range (if no until: validate next 8 weeks)
   const toISO = clean.until
     ? clean.until
     : new Date(
@@ -177,7 +176,7 @@ export const getOccurrences = async (
 
   const total = all.length;
   const page = Number(query.page) || 1;
-  const limit = Number(query.limit) || (total > 0 ? total : 10); // Default to all (if > 0) or 10
+  const limit = Number(query.limit) || (total > 0 ? total : 10); 
   const skip = (page - 1) * limit;
 
   const paginated = all.slice(skip, skip + limit);

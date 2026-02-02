@@ -3,7 +3,6 @@ import { Box, CssBaseline, useMediaQuery, useTheme } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-import { DRAWER_WIDTH, COLLAPSED_DRAWER_WIDTH } from "./layout.constants";
 
 const MainLayout: React.FC = () => {
   const theme = useTheme();
@@ -11,7 +10,6 @@ const MainLayout: React.FC = () => {
   const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
   const [open, setOpen] = useState(isLargeScreen && !isMobile);
 
-  // Update open state when screen size changes
   useEffect(() => {
     setOpen(isLargeScreen && !isMobile);
   }, [isLargeScreen, isMobile]);

@@ -29,10 +29,9 @@ interface RecurrenceEditorProps {
 
 const DAYS_OF_WEEK = Info.weekdays("short").map((name, index) => ({
   name,
-  value: index + 1 === 7 ? 0 : index + 1, // 1=Mon...6=Sat, 7=Sun -> 0=Sun...6=Sat (but luxon weekday is 1-7 Mon-Sun)
+  value: index + 1 === 7 ? 0 : index + 1,
 }));
 
-// Reorder to start with Sunday
 const SUNDAY_START_DAYS = [DAYS_OF_WEEK[6], ...DAYS_OF_WEEK.slice(0, 6)];
 
 const RecurrenceEditor: React.FC<RecurrenceEditorProps> = ({
@@ -57,7 +56,6 @@ const RecurrenceEditor: React.FC<RecurrenceEditorProps> = ({
   );
   const [rrule, setRrule] = useState(value.rrule || "");
 
-  // Update parent when local state changes
   useEffect(() => {
     onChange({
       freq,
@@ -188,7 +186,6 @@ const RecurrenceEditor: React.FC<RecurrenceEditorProps> = ({
     </Box>
   );
 
-  // PREVIEW LOGIC
   const previewOccurrences = useMemo(() => {
     const max = 5;
     const occurrences: { start: DateTime; end: DateTime }[] = [];
@@ -282,7 +279,6 @@ const RecurrenceEditor: React.FC<RecurrenceEditorProps> = ({
           }
         }
       } catch (e) {
-        // Invalid rrule
       }
     }
 
@@ -433,7 +429,6 @@ const RecurrenceEditor: React.FC<RecurrenceEditorProps> = ({
                   .sort((a, b) => {
                     const aVal = a === 0 ? 7 : a;
                     const bVal = b === 0 ? 7 : b;
-                    // For display order, we might want Sun first if that's the theme
                     const aOrder = a === 0 ? -1 : a;
                     const bOrder = b === 0 ? -1 : b;
                     return aOrder - bOrder;

@@ -160,7 +160,7 @@ const AppTable = <T extends Record<string, any>>({
         <TablePagination
           component="div"
           count={pagination.total}
-          page={pagination.page - 1} // MUI uses 0-based indexing
+          page={pagination.page - 1} 
           onPageChange={(_, newPage) => pagination.onPageChange(newPage + 1)}
           rowsPerPage={pagination.limit}
           onRowsPerPageChange={(e) =>

@@ -18,7 +18,6 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  // Helper to filter occurrences for a specific date
   const getEventsForDate = (date: DateTime) => {
     return occurrences.filter((occ) => {
       const occStart = DateTime.fromISO(occ.startAt);
@@ -26,7 +25,6 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
     });
   };
 
-  // Month View: 7x5 or 7x6 grid
   const renderMonthView = () => {
     const startOfMonth = currentDate.startOf("month");
     const endOfMonth = currentDate.endOf("month");
@@ -189,7 +187,6 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
     );
   };
 
-  // Week View: 7 columns for days
   const renderWeekView = () => {
     const startOfWeek = currentDate
       .minus({ days: currentDate.weekday % 7 })
@@ -346,9 +343,8 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
     );
   };
 
-  // Day View: Time slots vertically
   const renderDayView = () => {
-    const hours = Array.from({ length: 15 }, (_, i) => i + 7); // 7 AM to 9 PM
+    const hours = Array.from({ length: 15 }, (_, i) => i + 7);
     const events = getEventsForDate(currentDate);
 
     return (
@@ -416,7 +412,6 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
             minHeight: hours.length * 100,
           }}
         >
-          {/* Hour lines */}
           {hours.map((hour) => (
             <Box
               key={`line-${hour}`}

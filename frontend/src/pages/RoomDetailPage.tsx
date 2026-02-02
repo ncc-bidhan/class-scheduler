@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import {
   ArrowBackOutlined as ArrowBackIcon,
-  MeetingRoomOutlined as RoomIcon,
   GroupOutlined as CapacityIcon,
 } from "@mui/icons-material";
 import { useGetRoomQuery } from "../services/roomApi";

@@ -22,7 +22,6 @@ import {
   AddOutlined as AddIcon,
   ChevronLeftOutlined as ChevronLeftIcon,
   ChevronRightOutlined as ChevronRightIcon,
-  RefreshOutlined as RefreshIcon,
 } from "@mui/icons-material";
 
 import CalendarGrid from "../components/CalendarGrid";
@@ -54,7 +53,7 @@ const CalendarPage: React.FC = () => {
   React.useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
-      setPage(0); // Reset page on search
+      setPage(0);
     }, 300);
 
     return () => {
@@ -65,7 +64,6 @@ const CalendarPage: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(DateTime.now());
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Calculate date range for RTK Query based on current view and date
   const dateRange = useMemo(() => {
     let from: DateTime;
     let to: DateTime;
@@ -82,7 +80,6 @@ const CalendarPage: React.FC = () => {
         to = from.plus({ days: 6 }).endOf("day");
         break;
       case "month":
-        // For month view, we fetch from start of first week of month to end of last week of month
         const monthStart = currentDate.startOf("month");
         const monthEnd = currentDate.endOf("month");
         from = monthStart
@@ -164,7 +161,7 @@ const CalendarPage: React.FC = () => {
           break;
       }
     }
-    setPage(0); // Reset page on date change
+    setPage(0);
   };
 
   const getHeaderTitle = () => {

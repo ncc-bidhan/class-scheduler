@@ -6,7 +6,6 @@ import connectDB from "./config/db";
 
 const PORT = process.env.PORT || 5001;
 
-// Connect to MongoDB and start server
 const startServer = async () => {
   try {
     await connectDB();
