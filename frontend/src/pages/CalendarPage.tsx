@@ -32,6 +32,7 @@ import {
   CalendarMonthOutlined as CalendarIcon,
   ListOutlined as ListIcon,
 } from "@mui/icons-material";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { useGetOccurrencesQuery } from "../services/classesApi";
 
@@ -250,30 +251,31 @@ const CalendarPage: React.FC = () => {
               ),
             }}
           />
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setIsModalOpen(true)}
-            sx={{
-              px: 3,
-              py: 1,
-              borderRadius: 1.5,
-              textTransform: "none",
-              fontWeight: "bold",
-              boxShadow: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "0 4px 14px 0 rgba(0,0,0,0.39)"
-                  : "0 4px 14px 0 rgba(148, 58, 208, 0.39)",
-            }}
-          >
-            Create Class
-          </Button>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setIsModalOpen(true)}
+              sx={{
+                px: 3,
+                py: 1,
+                borderRadius: 1.5,
+                textTransform: "none",
+                fontWeight: "bold",
+              }}
+            >
+              Create Class
+            </Button>
+          </motion.div>
         </Stack>
       </Box>
 
       {/* Control Bar */}
       <Paper
         elevation={0}
+        component={motion.div}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
         sx={{
           p: 2,
           display: "flex",
@@ -286,6 +288,7 @@ const CalendarPage: React.FC = () => {
           borderColor: "divider",
           background: (theme) =>
             theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "white",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
         }}
       >
         <Stack
@@ -297,6 +300,9 @@ const CalendarPage: React.FC = () => {
           }}
         >
           <IconButton
+            component={motion.button}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => handleNavigate("prev")}
             size="small"
             sx={{ border: "1px solid", borderColor: "divider" }}
@@ -304,6 +310,9 @@ const CalendarPage: React.FC = () => {
             <ChevronLeftIcon />
           </IconButton>
           <Button
+            component={motion.button}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             variant="outlined"
             size="small"
             onClick={() => handleNavigate("today")}
@@ -317,6 +326,9 @@ const CalendarPage: React.FC = () => {
             Today
           </Button>
           <IconButton
+            component={motion.button}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => handleNavigate("next")}
             size="small"
             sx={{ border: "1px solid", borderColor: "divider" }}
@@ -328,14 +340,25 @@ const CalendarPage: React.FC = () => {
             sx={{
               ml: 2,
               fontWeight: "bold",
-              minWidth: { md: 200 },
+              minWidth: { md: 240 },
               textAlign: "center",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              overflow: "hidden",
             }}
           >
-            {getHeaderTitle()}
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={getHeaderTitle()}
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -10, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {getHeaderTitle()}
+              </motion.span>
+            </AnimatePresence>
           </Typography>
         </Stack>
 
@@ -353,11 +376,37 @@ const CalendarPage: React.FC = () => {
             onChange={handleViewChange}
             size="small"
             sx={{
+              backgroundColor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.05)"
+                  : "rgba(0,0,0,0.03)",
+              p: 0.5,
+              borderRadius: 2,
+              "& .MuiToggleButtonGroup-grouped": {
+                border: 0,
+                "&.Mui-disabled": {
+                  border: 0,
+                },
+                "&:not(:first-of-type)": {
+                  borderRadius: 1.5,
+                },
+                "&:first-of-type": {
+                  borderRadius: 1.5,
+                },
+              },
               "& .MuiToggleButton-root": {
                 textTransform: "none",
                 fontWeight: "bold",
                 px: 2,
-                borderRadius: 1.5,
+                color: "text.secondary",
+                "&.Mui-selected": {
+                  color: "primary.main",
+                  backgroundColor: "background.paper",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                  "&:hover": {
+                    backgroundColor: "background.paper",
+                  },
+                },
               },
             }}
           >
@@ -376,8 +425,31 @@ const CalendarPage: React.FC = () => {
             onChange={handleDisplayModeChange}
             size="small"
             sx={{
+              backgroundColor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.05)"
+                  : "rgba(0,0,0,0.03)",
+              p: 0.5,
+              borderRadius: 2,
+              "& .MuiToggleButtonGroup-grouped": {
+                border: 0,
+                "&:not(:first-of-type)": {
+                  borderRadius: 1.5,
+                },
+                "&:first-of-type": {
+                  borderRadius: 1.5,
+                },
+              },
               "& .MuiToggleButton-root": {
-                borderRadius: 1.5,
+                color: "text.secondary",
+                "&.Mui-selected": {
+                  color: "primary.main",
+                  backgroundColor: "background.paper",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                  "&:hover": {
+                    backgroundColor: "background.paper",
+                  },
+                },
               },
             }}
           >
@@ -388,61 +460,88 @@ const CalendarPage: React.FC = () => {
               <ListIcon fontSize="small" />
             </ToggleButton>
           </ToggleButtonGroup>
-
-          <IconButton
-            onClick={() => refetch()}
-            size="small"
-            sx={{ border: "1px solid", borderColor: "divider" }}
-          >
-            <RefreshIcon fontSize="small" />
-          </IconButton>
         </Stack>
       </Paper>
 
       {/* Calendar Content */}
-      {error ? (
-        <Alert
-          severity="error"
-          variant="outlined"
-          sx={{ borderRadius: 3 }}
-          action={
-            <Button color="inherit" size="small" onClick={() => refetch()}>
-              Retry
-            </Button>
-          }
-        >
-          <AlertTitle>Error Loading Schedule</AlertTitle>
-          There was an error fetching the class occurrences. Please try again.
-        </Alert>
-      ) : showLoading ? (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Skeleton
-            variant="rectangular"
-            height={600}
-            sx={{ borderRadius: 3 }}
-          />
-        </Box>
-      ) : displayMode === "calendar" ? (
-        <CalendarGrid
-          view={view}
-          currentDate={currentDate}
-          occurrences={occurrences}
-        />
-      ) : (
-        <ClassListView
-          occurrences={paginatedOccurrences}
-          pagination={{
-            page: page + 1,
-            limit,
-            total: occurrences.length,
-            onPageChange: (newPage) => setPage(newPage - 1),
-            onRowsPerPageChange: (newLimit) => {
-              setLimit(newLimit);
-              setPage(0);
-            },
-          }}
-        />
-      )}
+      <AnimatePresence mode="wait">
+        {error ? (
+          <motion.div
+            key="error"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Alert
+              severity="error"
+              variant="outlined"
+              sx={{ borderRadius: 3 }}
+              action={
+                <Button color="inherit" size="small" onClick={() => refetch()}>
+                  Retry
+                </Button>
+              }
+            >
+              <AlertTitle>Error Loading Schedule</AlertTitle>
+              There was an error fetching the class occurrences. Please try
+              again.
+            </Alert>
+          </motion.div>
+        ) : showLoading ? (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Skeleton
+                variant="rectangular"
+                height={600}
+                sx={{ borderRadius: 3 }}
+              />
+            </Box>
+          </motion.div>
+        ) : displayMode === "calendar" ? (
+          <motion.div
+            key={`${displayMode}-${view}-${currentDate.toMillis()}`}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.02 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <CalendarGrid
+              view={view}
+              currentDate={currentDate}
+              occurrences={occurrences}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key={`${displayMode}-${page}`}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <ClassListView
+              occurrences={paginatedOccurrences}
+              pagination={{
+                page: page + 1,
+                limit,
+                total: occurrences.length,
+                onPageChange: (newPage) => setPage(newPage - 1),
+                onRowsPerPageChange: (newLimit) => {
+                  setLimit(newLimit);
+                  setPage(0);
+                },
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <CreateClassModal
         open={isModalOpen}

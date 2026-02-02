@@ -12,6 +12,7 @@ import {
   Box,
   useTheme,
 } from "@mui/material";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   CalendarMonthOutlined as CalendarIcon,
   BusinessOutlined as BusinessIcon,

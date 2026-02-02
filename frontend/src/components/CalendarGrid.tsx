@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, Paper, useTheme, useMediaQuery } from "@mui/material";
 import { DateTime, Info } from "luxon";
+import { motion } from "framer-motion";
 import type { Occurrence } from "../types";
 import EventCard from "./EventCard";
 
@@ -55,6 +56,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
             md: "repeat(7, 1fr)",
           },
           rowGap: "1px",
+          columnGap: "1px",
           bgcolor: "divider",
           border: "1px solid",
           borderColor: "divider",
@@ -93,7 +95,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
             </Typography>
           </Box>
         ))}
-        {days.map((d) => {
+        {days.map((d, index) => {
           const events = getEventsForDate(d);
           const isCurrentMonth = d.month === currentDate.month;
           const isToday = d.hasSame(DateTime.now(), "day");
@@ -101,6 +103,10 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
           return (
             <Box
               key={d.toISODate()}
+              component={motion.div}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2, delay: index * 0.01 }}
               sx={{
                 bgcolor: isToday
                   ? (theme) =>
@@ -212,13 +218,17 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
               : "0 8px 32px rgba(0,0,0,0.06)",
         }}
       >
-        {days.map((d) => {
+        {days.map((d, index) => {
           const events = getEventsForDate(d);
           const isToday = d.hasSame(DateTime.now(), "day");
 
           return (
             <Box
               key={d.toISODate()}
+              component={motion.div}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
               sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -433,18 +443,23 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
             }}
           >
             {events.length > 0 ? (
-              events.map((occ) => {
+              events.map((occ, index) => {
                 const start = DateTime.fromISO(occ.startAt);
                 const hourOffset = start.hour - 7 + start.minute / 60;
                 return (
                   <Box
                     key={occ.startAt + occ.classId}
+                    component={motion.div}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ x: 4 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
                     sx={{
-                      width: "100%",
-                      transition: "transform 0.2s ease",
-                      "&:hover": {
-                        transform: "translateX(4px)",
-                      },
+                      position: "absolute",
+                      top: hourOffset * 100,
+                      left: { xs: 8, md: 24 },
+                      right: { xs: 8, md: 24 },
+                      zIndex: 2,
                     }}
                   >
                     <Typography
