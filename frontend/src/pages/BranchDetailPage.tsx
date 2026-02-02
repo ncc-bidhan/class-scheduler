@@ -6,7 +6,6 @@ import {
   Paper,
   Grid,
   Button,
-  Divider,
   Stack,
   Skeleton,
   Alert,
@@ -16,13 +15,8 @@ import {
   LocationOnOutlined as LocationIcon,
   PhoneOutlined as PhoneIcon,
   EmailOutlined as EmailIcon,
-  MeetingRoomOutlined as RoomIcon,
-  PersonOutlined as PersonIcon,
 } from "@mui/icons-material";
 import { useGetBranchQuery } from "../services/branchApi";
-import { useGetRoomsQuery } from "../services/roomApi";
-import { useGetInstructorsQuery } from "../services/instructorApi";
-import { Chip } from "@mui/material";
 import usePageTitle from "../hooks/usePageTitle";
 
 const BranchDetailPage: React.FC = () => {
@@ -30,10 +24,6 @@ const BranchDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: response, isLoading, error } = useGetBranchQuery(id!);
   usePageTitle(response?.data?.name || "Branch Details");
-  const { data: roomsResponse } = useGetRoomsQuery({ branchId: id });
-  const { data: instructorsResponse } = useGetInstructorsQuery({
-    branchId: id,
-  });
 
   if (isLoading) {
     return (
@@ -63,8 +53,6 @@ const BranchDetailPage: React.FC = () => {
   }
 
   const branch = response.data;
-  const rooms = roomsResponse?.data || [];
-  const instructors = instructorsResponse?.data || [];
 
   const renderInfoItem = (
     icon: React.ReactNode,
@@ -192,7 +180,7 @@ const BranchDetailPage: React.FC = () => {
         </Box>
 
         <Grid container spacing={6}>
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid size={{ xs: 12 }}>
             <Box
               sx={{
                 p: 4,
@@ -203,7 +191,6 @@ const BranchDetailPage: React.FC = () => {
                     : "rgba(148, 58, 208, 0.02)",
                 border: "1px solid",
                 borderColor: "divider",
-                height: "100%",
               }}
             >
               <Typography
@@ -225,133 +212,6 @@ const BranchDetailPage: React.FC = () => {
               {renderInfoItem(<EmailIcon />, "Email Address", branch.email)}
               {renderInfoItem(<PhoneIcon />, "Phone Number", branch.phone)}
             </Box>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 8 }}>
-            <Stack spacing={5}>
-              <Box>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: 900,
-                    mb: 3,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                    textTransform: "uppercase",
-                    fontSize: "0.9rem",
-                    letterSpacing: "0.1em",
-                  }}
-                >
-                  <PersonIcon color="primary" /> Instructors
-                </Typography>
-                {instructors.length > 0 ? (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: 1.5,
-                    }}
-                  >
-                    {instructors.map((instructor) => (
-                      <Chip
-                        key={instructor._id}
-                        label={instructor.name}
-                        onClick={() =>
-                          navigate(`/instructors/${instructor._id}`)
-                        }
-                        sx={{
-                          borderRadius: 2,
-                          px: 1,
-                          height: 40,
-                          fontWeight: 700,
-                          cursor: "pointer",
-                          bgcolor: (theme) =>
-                            theme.palette.mode === "dark"
-                              ? "rgba(255,255,255,0.05)"
-                              : "rgba(0,0,0,0.03)",
-                          border: "1px solid",
-                          borderColor: "divider",
-                          transition: "all 0.2s ease",
-                          "&:hover": {
-                            bgcolor: "primary.main",
-                            color: "white",
-                            borderColor: "primary.main",
-                            transform: "translateY(-2px)",
-                          },
-                        }}
-                      />
-                    ))}
-                  </Box>
-                ) : (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ fontWeight: 500, fontStyle: "italic" }}
-                  >
-                    No instructors assigned to this branch.
-                  </Typography>
-                )}
-              </Box>
-
-              <Box>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: 900,
-                    mb: 3,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                    textTransform: "uppercase",
-                    fontSize: "0.9rem",
-                    letterSpacing: "0.1em",
-                  }}
-                >
-                  <RoomIcon color="primary" /> Rooms
-                </Typography>
-                {rooms.length > 0 ? (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: 1.5,
-                    }}
-                  >
-                    {rooms.map((room) => (
-                      <Chip
-                        key={room._id}
-                        label={room.name}
-                        variant="outlined"
-                        onClick={() => navigate(`/rooms/${room._id}`)}
-                        sx={{
-                          borderRadius: 2,
-                          px: 1,
-                          height: 40,
-                          fontWeight: 700,
-                          cursor: "pointer",
-                          borderColor: "primary.light",
-                          transition: "all 0.2s ease",
-                          "&:hover": {
-                            bgcolor: "primary.light",
-                            color: "white",
-                            transform: "translateY(-2px)",
-                          },
-                        }}
-                      />
-                    ))}
-                  </Box>
-                ) : (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ fontWeight: 500, fontStyle: "italic" }}
-                  >
-                    No rooms available in this branch.
-                  </Typography>
-                )}
-              </Box>
-            </Stack>
           </Grid>
         </Grid>
       </Paper>
