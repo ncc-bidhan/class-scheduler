@@ -2,13 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { sendError } from "../utils/response";
 
-const JWT_SECRET = process.env.JWT_SECRET || "bidhan-can-code";
-
 export const protect = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
+  const JWT_SECRET = process.env.JWT_SECRET || "bidhan-can-code";
   let token;
 
   if (
@@ -28,6 +27,13 @@ export const protect = async (
 
   try {
     const decoded: any = jwt.verify(token, JWT_SECRET);
+    if (!decoded || !decoded.id) {
+      return sendError(res, {
+        title: "Not Authorized",
+        message: "Invalid token payload",
+        statusCode: 401,
+      });
+    }
     (req as any).user = decoded;
     next();
   } catch (error) {

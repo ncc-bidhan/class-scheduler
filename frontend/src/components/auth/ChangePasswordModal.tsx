@@ -8,8 +8,11 @@ import {
   TextField,
   Stack,
   Alert,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import { useChangePasswordMutation } from "../../services/authApi";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 interface ChangePasswordModalProps {
   open: boolean;
@@ -23,6 +26,9 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -70,27 +76,70 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             )}
             <TextField
               label="Current Password"
-              type="password"
+              type={showCurrentPassword ? "text" : "password"}
               fullWidth
               required
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle current password visibility"
+                      onClick={() =>
+                        setShowCurrentPassword(!showCurrentPassword)
+                      }
+                      edge="end"
+                    >
+                      {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <TextField
               label="New Password"
-              type="password"
+              type={showNewPassword ? "text" : "password"}
               fullWidth
               required
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle new password visibility"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      edge="end"
+                    >
+                      {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <TextField
               label="Confirm New Password"
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               fullWidth
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm password visibility"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
           </Stack>
         </DialogContent>

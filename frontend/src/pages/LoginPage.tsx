@@ -9,12 +9,15 @@ import {
   Link,
   Alert,
   Stack,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useLoginMutation } from "../services/authApi";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../store/authSlice";
 import usePageTitle from "../hooks/usePageTitle";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import logo from "../assets/ClassFlowHorizontal.png";
 
@@ -22,6 +25,7 @@ const LoginPage: React.FC = () => {
   usePageTitle("Login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [login, { isLoading }] = useLoginMutation();
@@ -104,10 +108,23 @@ const LoginPage: React.FC = () => {
                 fullWidth
                 label="Password"
                 variant="outlined"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
                 sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5 } }}
               />
               <Button
@@ -129,7 +146,7 @@ const LoginPage: React.FC = () => {
                       : "0 4px 14px 0 rgba(148, 58, 208, 0.39)",
                 }}
               >
-                {isLoading ? "Logging in..." : "Login to Dashboard"}
+                {isLoading ? "Logging in..." : "Login"}
               </Button>
             </Stack>
           </form>
