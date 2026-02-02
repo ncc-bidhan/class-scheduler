@@ -36,7 +36,7 @@ const ClassDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box>
         <Skeleton variant="text" width={300} height={60} sx={{ mb: 2 }} />
         <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 3 }} />
       </Box>
@@ -45,7 +45,7 @@ const ClassDetailPage: React.FC = () => {
 
   if (error || !response) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box>
         <Alert severity="error">
           Error loading class details. The class might not exist or there was a
           connection error.
@@ -68,11 +68,26 @@ const ClassDetailPage: React.FC = () => {
     label: string,
     value: string | number | React.ReactNode,
   ) => (
-    <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+    <Stack direction="row" spacing={2.5} sx={{ mb: 4 }}>
       <Box
-        sx={{ color: "primary.main", display: "flex", alignItems: "center" }}
+        sx={{
+          color: "primary.main",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 48,
+          height: 48,
+          borderRadius: 2,
+          bgcolor: (theme) =>
+            theme.palette.mode === "dark"
+              ? "rgba(144, 202, 249, 0.08)"
+              : "rgba(148, 58, 208, 0.05)",
+          flexShrink: 0,
+        }}
       >
-        {icon}
+        {React.cloneElement(icon as React.ReactElement, {
+          sx: { fontSize: "1.5rem" },
+        })}
       </Box>
       <Box>
         <Typography
@@ -80,13 +95,15 @@ const ClassDetailPage: React.FC = () => {
           color="text.secondary"
           sx={{
             display: "block",
-            fontWeight: "bold",
+            fontWeight: "800",
             textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            mb: 0.5,
           }}
         >
           {label}
         </Typography>
-        <Typography variant="body1" fontWeight="medium">
+        <Typography variant="body1" fontWeight="600" color="text.primary">
           {value}
         </Typography>
       </Box>
@@ -94,36 +111,83 @@ const ClassDetailPage: React.FC = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: 1000, mx: "auto", p: { xs: 2, md: 3 } }}>
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={() => navigate(-1)}
-        sx={{ mb: 3 }}
+        sx={{
+          mb: 4,
+          borderRadius: 2,
+          textTransform: "none",
+          fontWeight: 700,
+          color: "text.secondary",
+          px: 2,
+          "&:hover": {
+            bgcolor: "action.hover",
+            color: "primary.main",
+            transform: "translateX(-4px)",
+          },
+          transition: "all 0.2s ease",
+        }}
       >
-        Back
+        Back to Schedule
       </Button>
 
       <Paper
         elevation={0}
         sx={{
-          p: { xs: 3, md: 4 },
+          p: { xs: 3, md: 6 },
           borderRadius: 4,
           border: "1px solid",
           borderColor: "divider",
-          bgcolor: "background.paper",
+          background: (theme) =>
+            theme.palette.mode === "dark"
+              ? "rgba(30, 30, 30, 0.6)"
+              : "rgba(255, 255, 255, 0.9)",
+          backdropFilter: "blur(20px)",
+          boxShadow: (theme) =>
+            theme.palette.mode === "dark"
+              ? "0 8px 32px rgba(0,0,0,0.4)"
+              : "0 8px 32px rgba(148, 58, 208, 0.05)",
+          position: "relative",
+          overflow: "hidden",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "6px",
+            bgcolor: "primary.main",
+          },
         }}
       >
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 6 }}>
           <Stack
-            direction="row"
+            direction={{ xs: "column", sm: "row" }}
             justifyContent="space-between"
-            alignItems="flex-start"
+            alignItems={{ xs: "flex-start", sm: "flex-start" }}
+            spacing={3}
           >
-            <Box>
-              <Typography variant="h3" fontWeight="bold" gutterBottom>
+            <Box sx={{ flex: 1 }}>
+              <Typography
+                variant="h2"
+                sx={{
+                  letterSpacing: "-0.03em",
+                  mb: 2,
+                  fontSize: { xs: "2.25rem", md: "3.5rem" },
+                  color: "text.primary",
+                  lineHeight: 1.1,
+                }}
+              >
                 {classDoc.name}
               </Typography>
-              <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+              <Stack
+                direction="row"
+                spacing={1.5}
+                flexWrap="wrap"
+                sx={{ gap: 1.5 }}
+              >
                 <Chip
                   label={
                     classDoc.type === "recurring"
@@ -133,10 +197,18 @@ const ClassDetailPage: React.FC = () => {
                   color={
                     classDoc.type === "recurring" ? "primary" : "secondary"
                   }
-                  size="small"
+                  sx={{
+                    borderRadius: 2,
+                    fontWeight: 800,
+                    px: 1,
+                    height: 32,
+                    textTransform: "uppercase",
+                    fontSize: "0.7rem",
+                    letterSpacing: "0.05em",
+                  }}
                   icon={
                     classDoc.type === "recurring" ? (
-                      <RecurringIcon />
+                      <RecurringIcon sx={{ fontSize: "1.1rem !important" }} />
                     ) : undefined
                   }
                 />
@@ -144,7 +216,17 @@ const ClassDetailPage: React.FC = () => {
                   <Chip
                     label="Drop-in Allowed"
                     variant="outlined"
-                    size="small"
+                    sx={{
+                      borderRadius: 2,
+                      fontWeight: 800,
+                      px: 1,
+                      height: 32,
+                      textTransform: "uppercase",
+                      fontSize: "0.7rem",
+                      letterSpacing: "0.05em",
+                      borderColor: "divider",
+                      color: "text.secondary",
+                    }}
                   />
                 )}
               </Stack>
@@ -152,18 +234,37 @@ const ClassDetailPage: React.FC = () => {
           </Stack>
           <Typography
             variant="body1"
-            color="text.secondary"
-            sx={{ whiteSpace: "pre-wrap" }}
+            sx={{
+              whiteSpace: "pre-wrap",
+              mt: 4,
+              fontSize: { xs: "1.05rem", md: "1.15rem" },
+              lineHeight: 1.7,
+              color: "text.secondary",
+              maxWidth: "800px",
+            }}
           >
             {classDoc.description || "No description provided for this class."}
           </Typography>
         </Box>
 
-        <Divider sx={{ mb: 4 }} />
+        <Divider sx={{ my: 6, opacity: 0.5 }} />
 
-        <Grid container spacing={4}>
+        <Grid container spacing={{ xs: 4, md: 8 }}>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
+            <Typography
+              variant="h6"
+              sx={{
+                mb: 4,
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                color: "primary.main",
+                fontSize: "0.85rem",
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: "0.15em",
+              }}
+            >
               Schedule Details
             </Typography>
 
@@ -212,7 +313,20 @@ const ClassDetailPage: React.FC = () => {
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
+            <Typography
+              variant="h6"
+              sx={{
+                mb: 4,
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                color: "primary.main",
+                fontSize: "0.85rem",
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: "0.15em",
+              }}
+            >
               Location & Staff
             </Typography>
 

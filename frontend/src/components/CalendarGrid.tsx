@@ -29,8 +29,12 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
   const renderMonthView = () => {
     const startOfMonth = currentDate.startOf("month");
     const endOfMonth = currentDate.endOf("month");
-    const startOfCalendar = startOfMonth.startOf("week");
-    const endOfCalendar = endOfMonth.endOf("week");
+    const startOfCalendar = startOfMonth
+      .minus({ days: startOfMonth.weekday % 7 })
+      .startOf("day");
+    const endOfCalendar = endOfMonth
+      .plus({ days: 6 - (endOfMonth.weekday % 7) })
+      .endOf("day");
 
     const days: DateTime[] = [];
     let day = startOfCalendar;
@@ -40,6 +44,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
     }
 
     const weekdays = Info.weekdays("short");
+    const sundayStartWeekdays = [weekdays[6], ...weekdays.slice(0, 6)];
 
     return (
       <Box
@@ -54,26 +59,34 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
           border: "1px solid",
           borderColor: "divider",
           borderRadius: 2,
+          overflow: "hidden",
           overflowX: "auto",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
         }}
       >
-        {weekdays.map((day) => (
+        {sundayStartWeekdays.map((day) => (
           <Box
             key={day}
             sx={{
-              bgcolor: "background.paper",
+              bgcolor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.02)"
+                  : "rgba(0,0,0,0.02)",
               p: { xs: 1, md: 2 },
               textAlign: "center",
               minWidth: { xs: 100, md: "auto" },
+              borderBottom: "1px solid",
+              borderColor: "divider",
             }}
           >
             <Typography
               variant="caption"
               sx={{
                 color: "text.secondary",
-                fontWeight: "bold",
+                fontWeight: "800",
                 textTransform: "uppercase",
-                fontSize: { xs: "0.65rem", md: "0.75rem" },
+                fontSize: { xs: "0.65rem", md: "0.7rem" },
+                letterSpacing: "0.1em",
               }}
             >
               {day}
@@ -91,14 +104,21 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
               sx={{
                 bgcolor: isToday
                   ? (theme) =>
-                      theme.palette.mode === "dark" ? "#1a237e" : "#e8eaf6"
+                      theme.palette.mode === "dark"
+                        ? "rgba(25, 118, 210, 0.15)"
+                        : "rgba(25, 118, 210, 0.04)"
                   : "background.paper",
-                minHeight: { xs: 100, md: 120 },
+                minHeight: { xs: 100, md: 140 },
                 minWidth: { xs: 100, md: "auto" },
-                p: { xs: 0.5, md: 2 },
-                transition: "background-color 0.2s",
+                p: { xs: 0.5, md: 1.5 },
+                transition: "all 0.2s ease",
+                position: "relative",
                 "&:hover": {
-                  bgcolor: "action.hover",
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.04)"
+                      : "rgba(0,0,0,0.01)",
+                  zIndex: 1,
                 },
                 opacity: isCurrentMonth ? 1 : 0.4,
               }}
@@ -108,34 +128,51 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  mb: 1,
+                  mb: 1.5,
                 }}
               >
                 <Typography
                   variant="body2"
                   sx={{
-                    fontWeight: isToday ? "bold" : "normal",
-                    color: isToday ? "primary.main" : "text.primary",
+                    fontWeight: isToday ? "800" : "500",
+                    color: isToday ? "primary.main" : "text.secondary",
                     fontSize: { xs: "0.75rem", md: "0.875rem" },
+                    width: 28,
+                    height: 28,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "50%",
+                    bgcolor: isToday ? "primary.lighter" : "transparent",
                   }}
                 >
                   {d.day}
                 </Typography>
               </Box>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                {events.slice(0, isMobile ? 2 : 4).map((occ) => (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
+                {events.slice(0, isMobile ? 2 : 3).map((occ) => (
                   <EventCard
                     key={occ.startAt + occ.classId}
                     occurrence={occ}
                     isCompact
                   />
                 ))}
-                {events.length > (isMobile ? 2 : 4) && (
+                {events.length > (isMobile ? 2 : 3) && (
                   <Typography
                     variant="caption"
-                    sx={{ color: "text.secondary", pl: 0.5 }}
+                    sx={{
+                      color: "primary.main",
+                      fontWeight: "700",
+                      textAlign: "center",
+                      display: "block",
+                      mt: 0.5,
+                      bgcolor: "primary.lighter",
+                      borderRadius: 1,
+                      py: 0.25,
+                      fontSize: "0.65rem",
+                    }}
                   >
-                    + {events.length - (isMobile ? 2 : 4)} more
+                    + {events.length - (isMobile ? 2 : 3)} more
                   </Typography>
                 )}
               </Box>
@@ -148,7 +185,9 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
 
   // Week View: 7 columns for days
   const renderWeekView = () => {
-    const startOfWeek = currentDate.startOf("week");
+    const startOfWeek = currentDate
+      .minus({ days: currentDate.weekday % 7 })
+      .startOf("day");
     const days = Array.from({ length: 7 }, (_, i) =>
       startOfWeek.plus({ days: i }),
     );
@@ -158,12 +197,19 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
         sx={{
           display: "grid",
           gridTemplateColumns: {
-            xs: "repeat(7, minmax(120px, 1fr))",
+            xs: "repeat(7, minmax(140px, 1fr))",
             md: "repeat(7, 1fr)",
           },
-          gap: { xs: 1, md: 2 },
+          bgcolor: "divider",
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 4,
+          overflow: "hidden",
           overflowX: "auto",
-          pb: 1,
+          boxShadow: (theme) =>
+            theme.palette.mode === "dark"
+              ? "0 8px 32px rgba(0,0,0,0.3)"
+              : "0 8px 32px rgba(0,0,0,0.06)",
         }}
       >
         {days.map((d) => {
@@ -176,72 +222,112 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: { xs: 1, md: 2 },
-                minWidth: { xs: 120, md: "auto" },
+                minWidth: { xs: 140, md: "auto" },
+                bgcolor: "background.paper",
+                "&:not(:last-child)": {
+                  borderRight: "1px solid",
+                  borderColor: "divider",
+                },
               }}
             >
-              <Paper
-                elevation={0}
+              <Box
                 sx={{
-                  p: { xs: 1, md: 1.5 },
-                  border: "1px solid",
+                  p: 2.5,
                   textAlign: "center",
-                  borderRadius: 2,
-                  ...(isToday
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
+                  bgcolor: isToday
+                    ? (theme) =>
+                        theme.palette.mode === "dark"
+                          ? "rgba(25, 118, 210, 0.12)"
+                          : "rgba(25, 118, 210, 0.04)"
+                    : (theme) =>
+                        theme.palette.mode === "dark"
+                          ? "rgba(255,255,255,0.01)"
+                          : "rgba(0,0,0,0.01)",
+                  position: "relative",
+                  "&::after": isToday
                     ? {
+                        content: '""',
+                        position: "absolute",
+                        bottom: -1,
+                        left: "20%",
+                        right: "20%",
+                        height: 3,
                         bgcolor: "primary.main",
-                        borderColor: "primary.main",
-                        color: "primary.contrastText",
+                        borderRadius: "3px 3px 0 0",
                       }
-                    : {
-                        bgcolor: "background.paper",
-                        borderColor: "divider",
-                      }),
+                    : {},
                 }}
               >
                 <Typography
                   variant="caption"
                   sx={{
-                    color: isToday ? "inherit" : "text.secondary",
-                    fontWeight: "bold",
+                    color: isToday ? "primary.main" : "text.secondary",
+                    fontWeight: "800",
                     textTransform: "uppercase",
                     display: "block",
-                    fontSize: { xs: "0.65rem", md: "0.75rem" },
+                    fontSize: "0.7rem",
+                    letterSpacing: "0.12em",
+                    mb: 0.5,
                   }}
                 >
                   {d.toFormat("ccc")}
                 </Typography>
                 <Typography
-                  variant="h6"
+                  variant="h4"
                   sx={{
-                    fontWeight: "bold",
-                    color: "inherit",
-                    fontSize: { xs: "1rem", md: "1.25rem" },
+                    fontWeight: "900",
+                    color: isToday ? "primary.main" : "text.primary",
+                    fontSize: { xs: "1.5rem", md: "1.75rem" },
+                    lineHeight: 1,
+                    letterSpacing: "-0.02em",
                   }}
                 >
                   {d.day}
                 </Typography>
-              </Paper>
+              </Box>
               <Box
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: 1,
-                  minHeight: { xs: 300, md: 500 },
-                  bgcolor: "action.hover",
-                  borderRadius: 3,
-                  p: 1,
-                  border: "1px dashed",
-                  borderColor: "divider",
+                  gap: 2,
+                  minHeight: { xs: 500, md: 700 },
+                  p: 2,
+                  bgcolor: isToday
+                    ? (theme) =>
+                        theme.palette.mode === "dark"
+                          ? "rgba(25, 118, 210, 0.02)"
+                          : "rgba(25, 118, 210, 0.01)"
+                    : "transparent",
                 }}
               >
-                {events.map((occ) => (
-                  <EventCard
-                    key={occ.startAt + occ.classId}
-                    occurrence={occ}
-                    isCompact={isMobile}
-                  />
-                ))}
+                {events.length > 0 ? (
+                  events.map((occ) => (
+                    <EventCard
+                      key={occ.startAt + occ.classId}
+                      occurrence={occ}
+                      isCompact={isMobile}
+                    />
+                  ))
+                ) : (
+                  <Box
+                    sx={{
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      opacity: 0.15,
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      sx={{ fontWeight: 700, textTransform: "uppercase" }}
+                    >
+                      No Classes
+                    </Typography>
+                  </Box>
+                )}
               </Box>
             </Box>
           );
@@ -256,57 +342,138 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
     const events = getEventsForDate(currentDate);
 
     return (
-      <Box sx={{ display: "flex", gap: { xs: 1, md: 4 } }}>
+      <Box
+        sx={{
+          display: "flex",
+          gap: { xs: 0, md: 4 },
+          bgcolor: "background.paper",
+          borderRadius: 4,
+          border: "1px solid",
+          borderColor: "divider",
+          boxShadow: (theme) =>
+            theme.palette.mode === "dark"
+              ? "0 8px 32px rgba(0,0,0,0.2)"
+              : "0 8px 32px rgba(0,0,0,0.04)",
+          overflow: "hidden",
+        }}
+      >
         <Box
           sx={{
-            width: { xs: 60, md: 80 },
+            width: { xs: 70, md: 100 },
             display: "flex",
             flexDirection: "column",
-            gap: 5,
-            pt: 5,
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.02)"
+                : "rgba(0,0,0,0.01)",
+            borderRight: "1px solid",
+            borderColor: "divider",
           }}
         >
           {hours.map((hour) => (
-            <Typography
+            <Box
               key={hour}
-              variant="caption"
               sx={{
-                color: "text.secondary",
-                display: "block",
-                textAlign: "right",
-                pr: { xs: 1, md: 2 },
-                fontSize: { xs: "0.65rem", md: "0.75rem" },
+                height: 100,
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "center",
+                pt: 2,
               }}
             >
-              {hour === 12
-                ? "12 PM"
-                : hour > 12
-                  ? `${hour - 12} PM`
-                  : `${hour} AM`}
-            </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                  fontSize: { xs: "0.7rem", md: "0.8rem" },
+                  fontWeight: "800",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {hour === 12
+                  ? "12 PM"
+                  : hour > 12
+                    ? `${hour - 12} PM`
+                    : `${hour} AM`}
+              </Typography>
+            </Box>
           ))}
         </Box>
         <Box
           sx={{
             flex: 1,
             position: "relative",
-            bgcolor: "action.hover",
-            borderRadius: 3,
-            border: "1px dashed",
-            borderColor: "divider",
-            p: { xs: 1, md: 2 },
-            minHeight: 600,
+            minHeight: hours.length * 100,
           }}
         >
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {/* Hour lines */}
+          {hours.map((hour) => (
+            <Box
+              key={`line-${hour}`}
+              sx={{
+                position: "absolute",
+                top: (hour - 7) * 100,
+                left: 0,
+                right: 0,
+                height: "1px",
+                bgcolor: "divider",
+                opacity: 0.5,
+              }}
+            />
+          ))}
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              p: { xs: 2, md: 3 },
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
             {events.length > 0 ? (
-              events.map((occ) => (
-                <EventCard
-                  key={occ.startAt + occ.classId}
-                  occurrence={occ}
-                  isCompact={isMobile}
-                />
-              ))
+              events.map((occ) => {
+                const start = DateTime.fromISO(occ.startAt);
+                const hourOffset = start.hour - 7 + start.minute / 60;
+                return (
+                  <Box
+                    key={occ.startAt + occ.classId}
+                    sx={{
+                      width: "100%",
+                      transition: "transform 0.2s ease",
+                      "&:hover": {
+                        transform: "translateX(4px)",
+                      },
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "primary.main",
+                        fontWeight: "900",
+                        mb: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          bgcolor: "primary.main",
+                        }}
+                      />
+                      {start.toLocaleString(DateTime.TIME_SIMPLE)}
+                    </Typography>
+                    <EventCard occurrence={occ} isCompact={false} />
+                  </Box>
+                );
+              })
             ) : (
               <Box
                 sx={{
@@ -314,13 +481,16 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  height: "100%",
-                  opacity: 0.3,
-                  py: 10,
+                  height: 400,
+                  opacity: 0.2,
+                  mt: 10,
                 }}
               >
-                <Typography variant="body1">
-                  No classes scheduled for today
+                <Typography variant="h5" fontWeight="900" sx={{ mb: 1 }}>
+                  Free Day
+                </Typography>
+                <Typography variant="body2" fontWeight="600">
+                  No classes scheduled for this date
                 </Typography>
               </Box>
             )}

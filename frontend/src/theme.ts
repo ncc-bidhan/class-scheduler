@@ -14,8 +14,17 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
       paper: mode === "dark" ? "#1e1e1e" : "#ffffff",
     },
   },
+  shape: {
+    borderRadius: 4,
+  },
   typography: {
     fontFamily: '"Montserrat", "Roboto", "Helvetica", "Arial", sans-serif',
+    h1: { fontWeight: 800 },
+    h2: { fontWeight: 800 },
+    h3: { fontWeight: 800 },
+    h4: { fontWeight: 800 },
+    h5: { fontWeight: 700 },
+    h6: { fontWeight: 700 },
   },
   components: {
     MuiCssBaseline: {
@@ -35,9 +44,17 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
             border: "2px solid transparent",
             backgroundClip: "content-box",
           },
-          "&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: mode === "dark" ? "#64b5f6" : "#7b1fa2",
-          },
+          "&::-webkit-scrollbar-thumb:hover, & *::-webkit-scrollbar-thumb:hover":
+            {
+              backgroundColor: mode === "dark" ? "#64b5f6" : "#7b1fa2",
+            },
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: "none",
         },
       },
     },
@@ -45,6 +62,15 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
       styleOverrides: {
         root: {
           textTransform: "none",
+          fontWeight: 600,
+          borderRadius: 8,
+          padding: "8px 20px",
+        },
+        contained: {
+          boxShadow: "none",
+          "&:hover": {
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+          },
         },
       },
     },
@@ -52,13 +78,27 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
       styleOverrides: {
         root: {
           backgroundColor: mode === "dark" ? "#1e1e1e" : "#943ad0",
+          boxShadow: "none",
+        },
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        variant: "outlined",
+        fullWidth: true,
+      },
+      styleOverrides: {
+        root: {
+          "& .MuiOutlinedInput-root": {
+            borderRadius: 4,
+          },
         },
       },
     },
     MuiTable: {
       styleOverrides: {
         root: {
-          borderCollapse: 'collapse',
+          borderCollapse: "collapse",
         },
       },
     },
@@ -68,8 +108,11 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
           borderBottom: `1px solid ${mode === "dark" ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.12)"}`,
         },
         head: {
-          backgroundColor: mode === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.02)",
-          fontWeight: 'bold',
+          backgroundColor:
+            mode === "dark"
+              ? "rgba(255, 255, 255, 0.05)"
+              : "rgba(0, 0, 0, 0.02)",
+          fontWeight: "bold",
         },
       },
     },

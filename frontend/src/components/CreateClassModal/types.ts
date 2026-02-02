@@ -7,7 +7,6 @@ export interface CreateClassFormData {
   branchId: string;
   instructorId: string;
   roomId: string;
-  timezone: string;
   durationMinutes: number;
   capacity: number;
   waitlistCapacity: number;

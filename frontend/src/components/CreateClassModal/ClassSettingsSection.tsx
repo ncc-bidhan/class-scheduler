@@ -9,7 +9,10 @@ import {
   Switch,
   Tooltip,
 } from "@mui/material";
-import { PeopleOutlined as People, InfoOutlined as Info } from "@mui/icons-material";
+import {
+  PeopleOutlined as People,
+  InfoOutlined as Info,
+} from "@mui/icons-material";
 import type { CreateClassFormData } from "./types";
 
 interface ClassSettingsSectionProps {
@@ -24,12 +27,30 @@ const ClassSettingsSection: React.FC<ClassSettingsSectionProps> = ({
   fieldErrors,
 }) => {
   return (
-    <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+    <Paper
+      elevation={0}
+      sx={{
+        p: 3,
+        borderRadius: 2,
+        border: "1px solid",
+        borderColor: "divider",
+        background: (theme) =>
+          theme.palette.mode === "dark"
+            ? "rgba(255,255,255,0.02)"
+            : "rgba(0,0,0,0.01)",
+      }}
+    >
       <Typography
         variant="subtitle1"
-        fontWeight={600}
+        fontWeight="800"
         gutterBottom
         color="primary"
+        sx={{
+          textTransform: "uppercase",
+          fontSize: "0.75rem",
+          letterSpacing: "0.1em",
+          mb: 2,
+        }}
       >
         Class Settings
       </Typography>
@@ -110,14 +131,6 @@ const ClassSettingsSection: React.FC<ClassSettingsSectionProps> = ({
                   </Tooltip>
                 </Box>
               }
-            />
-            <TextField
-              label="Timezone"
-              name="timezone"
-              size="small"
-              value={formData.timezone}
-              onChange={handleInputChange}
-              sx={{ minWidth: 220 }}
             />
           </Box>
         </Grid>

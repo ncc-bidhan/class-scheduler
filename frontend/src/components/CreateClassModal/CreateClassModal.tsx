@@ -13,7 +13,10 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import { CalendarMonthOutlined as CalendarMonth, CloseOutlined as Close } from "@mui/icons-material";
+import {
+  CalendarMonthOutlined as CalendarMonth,
+  CloseOutlined as Close,
+} from "@mui/icons-material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTime } from "luxon";
@@ -52,7 +55,6 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
     branchId: "",
     instructorId: "",
     roomId: "",
-    timezone: "Asia/Kathmandu",
     durationMinutes: 60,
     capacity: 20,
     waitlistCapacity: 5,
@@ -96,7 +98,11 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
   ] = useLazyGetInstructorsQuery();
   const [
     triggerGetRooms,
-    { data: roomsResponse, isLoading: isRoomsLoading, isFetching: isRoomsFetching },
+    {
+      data: roomsResponse,
+      isLoading: isRoomsLoading,
+      isFetching: isRoomsFetching,
+    },
   ] = useLazyGetRoomsQuery();
 
   const isLoading = isSingleLoading || isRecurringLoading;
@@ -201,35 +207,68 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
     >
       <DialogTitle
         sx={{
-          pb: 1,
+          pb: 2,
+          pt: 3,
+          px: 3,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
         }}
       >
-        <Box display="flex" alignItems="center" gap={1}>
-          <CalendarMonth color="primary" />
-          <Typography variant="h5" component="span" fontWeight={600}>
-            Create New Class
-          </Typography>
+        <Box display="flex" alignItems="center" gap={1.5}>
+          <Box
+            sx={{
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
+              width: 40,
+              height: 40,
+              borderRadius: 1.5,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            }}
+          >
+            <CalendarMonth />
+          </Box>
+          <Box>
+            <Typography
+              variant="h5"
+              fontWeight="800"
+              sx={{ letterSpacing: "-0.02em" }}
+            >
+              Create New Class
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Set up a new single or recurring class
+            </Typography>
+          </Box>
         </Box>
         <IconButton
           onClick={onClose}
           size="small"
-          sx={{ color: "text.secondary" }}
+          sx={{
+            color: "text.secondary",
+            bgcolor: "action.hover",
+            "&:hover": { bgcolor: "error.light", color: "error.main" },
+          }}
         >
           <Close />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent dividers sx={{ px: 3, py: 3 }}>
+      <DialogContent sx={{ px: { xs: 2, md: 3 }, py: 3 }}>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <Stack spacing={4}>
             {generalError && (
               <Alert
                 severity="error"
                 onClose={() => setGeneralError(null)}
-                sx={{ borderRadius: 1.5 }}
+                sx={{
+                  borderRadius: 1.5,
+                  border: "1px solid",
+                  borderColor: "error.light",
+                }}
               >
                 {generalError}
               </Alert>
@@ -254,9 +293,13 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
               onInstructorOpen={() =>
                 triggerGetInstructors({ branchId: formData.branchId })
               }
-              onRoomOpen={() => triggerGetRooms({ branchId: formData.branchId })}
+              onRoomOpen={() =>
+                triggerGetRooms({ branchId: formData.branchId })
+              }
               isBranchesLoading={isBranchesLoading || isBranchesFetching}
-              isInstructorsLoading={isInstructorsLoading || isInstructorsFetching}
+              isInstructorsLoading={
+                isInstructorsLoading || isInstructorsFetching
+              }
               isRoomsLoading={isRoomsLoading || isRoomsFetching}
             />
 
@@ -279,9 +322,11 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
       <DialogActions
         sx={{
           px: 3,
-          py: 2,
+          py: 2.5,
           bgcolor: (theme) =>
-            theme.palette.mode === "dark" ? "background.paper" : "grey.50",
+            theme.palette.mode === "dark"
+              ? "rgba(255,255,255,0.02)"
+              : "grey.50",
           borderTop: "1px solid",
           borderColor: "divider",
         }}
@@ -291,7 +336,9 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
           color="inherit"
           sx={{
             textTransform: "none",
-            fontWeight: 500,
+            fontWeight: 600,
+            px: 3,
+            borderRadius: 1.5,
           }}
         >
           Cancel
@@ -302,9 +349,14 @@ const CreateClassModal: React.FC<CreateClassModalProps> = ({
           disabled={isLoading}
           sx={{
             textTransform: "none",
-            fontWeight: 600,
+            fontWeight: 700,
             px: 4,
-            boxShadow: 2,
+            borderRadius: 1.5,
+            boxShadow: (theme) => `0 8px 16px ${theme.palette.primary.main}40`,
+            "&:hover": {
+              boxShadow: (theme) =>
+                `0 12px 20px ${theme.palette.primary.main}60`,
+            },
           }}
         >
           {isLoading ? "Creating..." : "Create Class"}

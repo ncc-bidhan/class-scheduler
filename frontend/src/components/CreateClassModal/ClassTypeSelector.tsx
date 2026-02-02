@@ -16,34 +16,63 @@ const ClassTypeSelector: React.FC<ClassTypeSelectorProps> = ({
   };
 
   return (
-    <Box display="flex" justifyContent="center">
+    <Box
+      display="flex"
+      justifyContent="center"
+      sx={{
+        p: 0.5,
+        bgcolor: (theme) =>
+          theme.palette.mode === "dark"
+            ? "rgba(255,255,255,0.05)"
+            : "rgba(0,0,0,0.03)",
+        borderRadius: 2.5,
+        width: "fit-content",
+        mx: "auto",
+      }}
+    >
       <ToggleButtonGroup
         value={type}
         exclusive
         onChange={handleTypeChange}
         color="primary"
         sx={{
+          gap: 1,
+          "& .MuiToggleButtonGroup-grouped": {
+            border: 0,
+            "&.Mui-disabled": {
+              border: 0,
+            },
+            "&:not(:first-of-type)": {
+              borderRadius: 2,
+            },
+            "&:first-of-type": {
+              borderRadius: 2,
+            },
+          },
           "& .MuiToggleButton-root": {
-            px: 4,
+            px: { xs: 2, sm: 4 },
             py: 1,
             textTransform: "none",
-            fontWeight: 500,
-            borderRadius: 2,
+            fontWeight: 700,
+            fontSize: "0.9rem",
+            color: "text.secondary",
+            transition: "all 0.2s ease",
             "&.Mui-selected": {
-              bgcolor: "primary.main",
-              color: "primary.contrastText",
+              bgcolor: "background.paper",
+              color: "primary.main",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
               "&:hover": {
-                bgcolor: "primary.dark",
+                bgcolor: "background.paper",
               },
             },
           },
         }}
       >
-        <ToggleButton value="single" sx={{ mr: 1 }}>
+        <ToggleButton value="single">
           <Schedule sx={{ mr: 1, fontSize: 20 }} />
           Single Class
         </ToggleButton>
-        <ToggleButton value="recurring" sx={{ ml: 1 }}>
+        <ToggleButton value="recurring">
           <CalendarMonth sx={{ mr: 1, fontSize: 20 }} />
           Recurring Pattern
         </ToggleButton>

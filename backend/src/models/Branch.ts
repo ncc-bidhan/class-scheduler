@@ -5,7 +5,6 @@ export interface IBranch extends Document {
   address?: string;
   phone?: string;
   email?: string;
-  timezone: string;
 }
 
 const BranchSchema = new Schema<IBranch>(
@@ -14,7 +13,6 @@ const BranchSchema = new Schema<IBranch>(
     address: { type: String, trim: true, maxlength: 200 },
     phone: { type: String, trim: true },
     email: { type: String, trim: true },
-    timezone: { type: String, required: true, default: "UTC" },
   },
   { timestamps: true }
 );

@@ -40,7 +40,6 @@ const baseSchema = z.object({
   instructorId: objectIdSchema,
   roomId: objectIdSchema,
 
-  timezone: z.string().min(1, "Timezone is required"),
   durationMinutes: z.number().int().min(1).max(1440),
 
   capacity: z.number().int().min(1),
@@ -188,11 +187,12 @@ export const occurrencesQuerySchema = z
     instructorId: objectIdSchema.optional(),
     roomId: objectIdSchema.optional(),
     search: z.string().optional(),
-    page: z.preprocess((val) => Number(val), z.number().int().min(1)).optional(),
-    limit: z.preprocess(
-      (val) => Number(val),
-      z.number().int().min(1).max(100),
-    ).optional(),
+    page: z
+      .preprocess((val) => Number(val), z.number().int().min(1))
+      .optional(),
+    limit: z
+      .preprocess((val) => Number(val), z.number().int().min(1).max(100))
+      .optional(),
   })
   .superRefine((val, ctx) => {
     if (val.from >= val.to) {
@@ -210,7 +210,6 @@ export const branchSchema = z.object({
   address: z.string().max(200).optional(),
   phone: z.string().optional(),
   email: z.string().email().optional().or(z.literal("")),
-  timezone: z.string().min(1, "Timezone is required"),
 });
 
 /** Instructor */

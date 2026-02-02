@@ -30,7 +30,8 @@ const RoomDetailPage: React.FC = () => {
 
   // Also fetch branch details to show branch name if we have the branchId
   const rawBranchId = response?.data?.branchId;
-  const branchId = typeof rawBranchId === "string" ? rawBranchId : rawBranchId?._id;
+  const branchId =
+    typeof rawBranchId === "string" ? rawBranchId : rawBranchId?._id;
 
   const { data: branchResponse } = useGetBranchQuery(branchId!, {
     skip: !branchId,
@@ -38,7 +39,7 @@ const RoomDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box>
         <Skeleton variant="text" width={300} height={60} sx={{ mb: 2 }} />
         <Skeleton variant="rectangular" height={300} sx={{ borderRadius: 3 }} />
       </Box>
@@ -47,7 +48,7 @@ const RoomDetailPage: React.FC = () => {
 
   if (error || !response) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box>
         <Alert severity="error">
           Error loading room details. The room might not exist or there was a
           connection error.
@@ -96,67 +97,151 @@ const RoomDetailPage: React.FC = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", p: { xs: 2, md: 3 } }}>
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={() => navigate(-1)}
-        sx={{ mb: 3 }}
+        sx={{
+          mb: 4,
+          color: "text.secondary",
+          "&:hover": { background: "transparent", color: "primary.main" },
+          textTransform: "none",
+          fontWeight: "bold",
+        }}
       >
-        Back
+        Back to Rooms
       </Button>
 
       <Paper
         elevation={0}
         sx={{
-          p: { xs: 3, md: 4 },
-          borderRadius: 3,
+          p: { xs: 3, md: 5 },
+          borderRadius: 1.5,
           border: "1px solid",
           borderColor: "divider",
+          background: (theme) =>
+            theme.palette.mode === "dark"
+              ? "linear-gradient(145deg, #1e1e1e 0%, #121212 100%)"
+              : "linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)",
+          boxShadow: "0 10px 40px rgba(0,0,0,0.04)",
         }}
       >
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" fontWeight="bold" gutterBottom>
+        <Box sx={{ mb: 5 }}>
+          <Typography
+            variant="h3"
+            fontWeight="800"
+            sx={{
+              fontSize: { xs: "2rem", md: "2.5rem" },
+              letterSpacing: "-0.02em",
+              mb: 1,
+            }}
+          >
             {room.name}
           </Typography>
-          <Divider sx={{ my: 2 }} />
+          <Typography variant="body1" color="text.secondary">
+            Classroom Facilities & Capacity
+          </Typography>
         </Box>
 
-        <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
-              Room Details
+        <Grid container spacing={5}>
+          <Grid item xs={12} md={6}>
+            <Typography
+              variant="subtitle1"
+              fontWeight="800"
+              sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
+            >
+              Room Specifications
             </Typography>
 
-            {renderInfoItem(
-              <CapacityIcon />,
-              "Capacity",
-              room.capacity ? `${room.capacity} Students` : "N/A",
-            )}
+            <Box
+              sx={{
+                p: 3,
+                borderRadius: 1.5,
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.03)"
+                    : "rgba(0,0,0,0.01)",
+                border: "1px solid",
+                borderColor: "divider",
+                minHeight: "100%",
+              }}
+            >
+              {renderInfoItem(
+                <CapacityIcon />,
+                "Seating Capacity",
+                room.capacity ? (
+                  <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
+                    <Typography variant="h4" fontWeight="800" color="primary">
+                      {room.capacity}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Students
+                    </Typography>
+                  </Box>
+                ) : (
+                  "Not specified"
+                ),
+              )}
+            </Box>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
-              Location
+          <Grid item xs={12} md={6}>
+            <Typography
+              variant="subtitle1"
+              fontWeight="800"
+              sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
+            >
+              Branch Location
             </Typography>
 
-            {renderInfoItem(
-              <LocationIcon />,
-              "Branch",
-              branchResponse?.data ? (
-                <Chip
-                  label={branchResponse.data.name}
-                  size="small"
-                  onClick={() =>
-                    navigate(`/branches/${branchResponse.data._id}`)
-                  }
-                  sx={{ cursor: "pointer" }}
-                />
-              ) : typeof room.branchId === "string" ? (
-                room.branchId
-              ) : (
-                room.branchId?.name || "N/A"
-              ),
-            )}
+            <Box
+              sx={{
+                p: 3,
+                borderRadius: 1.5,
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.03)"
+                    : "rgba(0,0,0,0.01)",
+                border: "1px solid",
+                borderColor: "divider",
+                minHeight: "100%",
+              }}
+            >
+              {renderInfoItem(
+                <LocationIcon />,
+                "Assigned Branch",
+                branchResponse?.data ? (
+                  <Chip
+                    label={branchResponse.data.name}
+                    size="medium"
+                    onClick={() =>
+                      navigate(`/branches/${branchResponse.data._id}`)
+                    }
+                    sx={{
+                      cursor: "pointer",
+                      borderRadius: 1,
+                      fontWeight: "bold",
+                      bgcolor: (theme) =>
+                        theme.palette.mode === "dark"
+                          ? "primary.dark"
+                          : "primary.light",
+                      color: (theme) =>
+                        theme.palette.mode === "dark"
+                          ? "white"
+                          : "primary.main",
+                      "&:hover": {
+                        bgcolor: "primary.main",
+                        color: "white",
+                      },
+                    }}
+                  />
+                ) : typeof room.branchId === "string" ? (
+                  room.branchId
+                ) : (
+                  room.branchId?.name || "N/A"
+                ),
+              )}
+            </Box>
           </Grid>
         </Grid>
       </Paper>

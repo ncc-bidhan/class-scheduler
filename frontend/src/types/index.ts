@@ -48,7 +48,6 @@ export interface ClassDoc {
   branchId: string | Branch;
   instructorId: string | Instructor;
   roomId: string | Room;
-  timezone: string;
   durationMinutes: number;
   capacity: number;
   waitlistCapacity: number;
@@ -90,7 +89,6 @@ export interface Branch {
   address?: string;
   phone?: string;
   email?: string;
-  timezone: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -28,17 +28,13 @@ const overlapsWindow = (
   return s < to && e > from;
 };
 
-const makeISO = (date: DateTime, tz: string, slot: TimeSlot) => {
+const makeISO = (date: DateTime, slot: TimeSlot) => {
   const { h: sh, m: sm } = parseHHMM(slot.startTime);
   const { h: eh, m: em } = parseHHMM(slot.endTime);
 
-  const start = date
-    .set({ hour: sh, minute: sm, second: 0, millisecond: 0 })
-    .setZone(tz, { keepLocalTime: true });
+  const start = date.set({ hour: sh, minute: sm, second: 0, millisecond: 0 });
 
-  const end = date
-    .set({ hour: eh, minute: em, second: 0, millisecond: 0 })
-    .setZone(tz, { keepLocalTime: true });
+  const end = date.set({ hour: eh, minute: em, second: 0, millisecond: 0 });
 
   return { startISO: start.toISO()!, endISO: end.toISO()! };
 };
@@ -50,8 +46,8 @@ export const expandOccurrencesForClass = (
   fromISO: string,
   toISO: string,
 ): Occurrence[] => {
-  const from = DateTime.fromISO(fromISO, { zone: doc.timezone });
-  const to = DateTime.fromISO(toISO, { zone: doc.timezone });
+  const from = DateTime.fromISO(fromISO);
+  const to = DateTime.fromISO(toISO);
 
   const classId = String(doc._id);
   const className = doc.name;
@@ -80,9 +76,8 @@ export const expandOccurrencesForClass = (
   // RECURRING
   if (!doc.dtstart || !doc.recurrence) return [];
 
-  const tz = doc.timezone;
-  const dtstart = DateTime.fromJSDate(doc.dtstart, { zone: tz });
-  const until = doc.until ? DateTime.fromJSDate(doc.until, { zone: tz }) : null;
+  const dtstart = DateTime.fromJSDate(doc.dtstart);
+  const until = doc.until ? DateTime.fromJSDate(doc.until) : null;
 
   const windowStart = from < dtstart ? dtstart : from;
   const windowEnd = until && to > until ? until : to;
@@ -100,38 +95,52 @@ export const expandOccurrencesForClass = (
     const endDay = windowEnd.startOf("day");
 
     while (cursor <= endDay) {
-      for (const slot of slots) {
-        const { startISO, endISO } = makeISO(cursor, tz, slot);
-        if (overlapsWindow(startISO, endISO, from, to))
-          out.push({ ...baseOccurrence, startAt: startISO, endAt: endISO });
+      const daysDiff = Math.floor(
+        cursor.diff(dtstart.startOf("day"), "days").days,
+      );
+      if (daysDiff >= 0 && daysDiff % interval === 0) {
+        for (const slot of slots) {
+          const { startISO, endISO } = makeISO(cursor, slot);
+          if (overlapsWindow(startISO, endISO, from, to)) {
+            out.push({ ...baseOccurrence, startAt: startISO, endAt: endISO });
+          }
+        }
       }
-      cursor = cursor.plus({ days: interval });
+      cursor = cursor.plus({ days: 1 });
     }
   }
 
   // WEEKLY
   if (rec.freq === "weekly") {
     const interval = Math.max(1, rec.interval ?? 1);
-    const selected = new Set((rec.byWeekday ?? []).map(Number)); // 0..6
-    const slotsByDay = rec.timeSlotsByWeekday ?? new Map<string, TimeSlot[]>();
-
-    const anchorWeek = dtstart.startOf("week");
+    const byWeekday = rec.byWeekday ?? [];
+    const slotsByWeekday = rec.timeSlotsByWeekday ?? new Map();
 
     let cursor = windowStart.startOf("day");
     const endDay = windowEnd.startOf("day");
 
     while (cursor <= endDay) {
-      const wd = luxonWeekdayToSun0(cursor.weekday);
-      if (selected.has(wd)) {
-        const weekDiff = Math.floor(
-          cursor.startOf("week").diff(anchorWeek, "weeks").weeks,
-        );
-        if (weekDiff % interval === 0) {
-          const slots = slotsByDay.get(String(wd)) ?? [];
+      const weekDiff = Math.floor(
+        cursor
+          .minus({ days: cursor.weekday % 7 })
+          .startOf("day")
+          .diff(
+            dtstart.minus({ days: dtstart.weekday % 7 }).startOf("day"),
+            "weeks",
+          ).weeks,
+      );
+
+      if (weekDiff >= 0 && weekDiff % interval === 0) {
+        const luxonW = cursor.weekday; // 1=Mon...7=Sun
+        const sun0 = luxonWeekdayToSun0(luxonW);
+
+        if (byWeekday.includes(sun0)) {
+          const slots = (slotsByWeekday.get(String(sun0)) as TimeSlot[]) ?? [];
           for (const slot of slots) {
-            const { startISO, endISO } = makeISO(cursor, tz, slot);
-            if (overlapsWindow(startISO, endISO, from, to))
+            const { startISO, endISO } = makeISO(cursor, slot);
+            if (overlapsWindow(startISO, endISO, from, to)) {
               out.push({ ...baseOccurrence, startAt: startISO, endAt: endISO });
+            }
           }
         }
       }
@@ -142,60 +151,58 @@ export const expandOccurrencesForClass = (
   // MONTHLY
   if (rec.freq === "monthly") {
     const interval = Math.max(1, rec.interval ?? 1);
-    const monthDays = rec.byMonthDay ?? [];
+    const byMonthDay = rec.byMonthDay ?? [];
     const slots = rec.timeSlots ?? [];
 
-    const anchorMonth = dtstart.startOf("month");
-
-    let cursorMonth = windowStart.startOf("month");
+    let cursor = windowStart.startOf("month");
     const endMonth = windowEnd.startOf("month");
 
-    while (cursorMonth <= endMonth) {
+    while (cursor <= endMonth) {
       const monthDiff = Math.floor(
-        cursorMonth.diff(anchorMonth, "months").months,
+        cursor.diff(dtstart.startOf("month"), "months").months,
       );
-      if (monthDiff % interval === 0) {
-        for (const dom of monthDays) {
-          const date = cursorMonth.set({ day: dom });
-          if (!date.isValid) continue;
-
-          for (const slot of slots) {
-            const { startISO, endISO } = makeISO(date, tz, slot);
-            if (overlapsWindow(startISO, endISO, from, to))
-              out.push({ ...baseOccurrence, startAt: startISO, endAt: endISO });
+      if (monthDiff >= 0 && monthDiff % interval === 0) {
+        for (const dayNum of byMonthDay) {
+          const date = cursor.set({ day: dayNum });
+          if (date.month === cursor.month) {
+            for (const slot of slots) {
+              const { startISO, endISO } = makeISO(date, slot);
+              if (overlapsWindow(startISO, endISO, from, to)) {
+                out.push({
+                  ...baseOccurrence,
+                  startAt: startISO,
+                  endAt: endISO,
+                });
+              }
+            }
           }
         }
       }
-      cursorMonth = cursorMonth.plus({ months: 1 });
+      cursor = cursor.plus({ months: 1 });
     }
   }
 
-  // CUSTOM (RRULE)
-  if (rec.freq === "custom") {
-    const slots = rec.timeSlots ?? [];
-    const rruleString = rec.rrule;
+  // CUSTOM
+  if (rec.freq === "custom" && rec.rrule) {
+    try {
+      const rrule = RRule.fromString(rec.rrule);
+      const slots = rec.timeSlots ?? [];
 
-    if (rruleString) {
-      const rule = RRule.fromString(rruleString);
-      const dates = rule.between(
-        windowStart.toJSDate(),
-        windowEnd.toJSDate(),
-        true,
-      );
+      const occurrences = rrule.between(from.toJSDate(), to.toJSDate(), true);
 
-      for (const d of dates) {
-        const day = DateTime.fromJSDate(d, { zone: tz }).startOf("day");
+      for (const occ of occurrences) {
+        const day = DateTime.fromJSDate(occ);
         for (const slot of slots) {
-          const { startISO, endISO } = makeISO(day, tz, slot);
-          if (overlapsWindow(startISO, endISO, from, to))
+          const { startISO, endISO } = makeISO(day, slot);
+          if (overlapsWindow(startISO, endISO, from, to)) {
             out.push({ ...baseOccurrence, startAt: startISO, endAt: endISO });
+          }
         }
       }
+    } catch (err) {
+      console.error("RRule parse error:", err);
     }
   }
 
-  out.sort(
-    (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
-  );
-  return out;
+  return out.sort((a, b) => a.startAt.localeCompare(b.startAt));
 };

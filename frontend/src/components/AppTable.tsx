@@ -66,17 +66,42 @@ const AppTable = <T extends Record<string, any>>({
   return (
     <TableContainer
       component={Paper}
-      variant="outlined"
-      sx={{ borderRadius: 3, overflow: "hidden" }}
+      elevation={0}
+      sx={{
+        borderRadius: 3,
+        overflow: "hidden",
+        width: "100%",
+        display: "block",
+        border: "1px solid",
+        borderColor: "divider",
+        bgcolor: "background.paper",
+        boxShadow: (theme) =>
+          theme.palette.mode === "dark"
+            ? "0 4px 20px rgba(0,0,0,0.3)"
+            : "0 4px 20px rgba(0,0,0,0.03)",
+        "& .MuiTable-root": {
+          minWidth: { xs: 650, md: "100%" },
+        },
+      }}
     >
       <Table>
         <TableHead>
-          <TableRow>
+          <TableRow sx={{ bgcolor: "action.hover" }}>
             {columns.map((column) => (
               <TableCell
                 key={column.id as string}
                 align={column.align}
-                sx={{ width: column.width }}
+                sx={{
+                  width: column.width,
+                  fontWeight: "800",
+                  textTransform: "uppercase",
+                  fontSize: "0.75rem",
+                  letterSpacing: "0.05em",
+                  color: "text.secondary",
+                  py: 2.5,
+                  borderBottom: "2px solid",
+                  borderColor: "divider",
+                }}
               >
                 {column.label}
               </TableCell>
@@ -90,10 +115,27 @@ const AppTable = <T extends Record<string, any>>({
                 key={getRowKey(row, index)}
                 hover={!!onRowClick}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
-                sx={{ cursor: onRowClick ? "pointer" : "default" }}
+                sx={{
+                  cursor: onRowClick ? "pointer" : "default",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor: (theme) =>
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.02) !important"
+                        : "rgba(148,58,208,0.02) !important",
+                  },
+                }}
               >
                 {columns.map((column) => (
-                  <TableCell key={column.id as string} align={column.align}>
+                  <TableCell
+                    key={column.id as string}
+                    align={column.align}
+                    sx={{
+                      py: 2,
+                      fontSize: "0.9rem",
+                      borderColor: "rgba(0,0,0,0.05)",
+                    }}
+                  >
                     {column.render
                       ? column.render(row)
                       : (row[column.id as keyof T] as React.ReactNode) || "-"}
@@ -104,9 +146,11 @@ const AppTable = <T extends Record<string, any>>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} align="center">
-                <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-                  {emptyMessage}
-                </Typography>
+                <Box sx={{ py: 6, opacity: 0.5 }}>
+                  <Typography variant="body1" fontWeight="600">
+                    {emptyMessage}
+                  </Typography>
+                </Box>
               </TableCell>
             </TableRow>
           )}

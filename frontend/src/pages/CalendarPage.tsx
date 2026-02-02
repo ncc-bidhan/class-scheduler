@@ -75,17 +75,25 @@ const CalendarPage: React.FC = () => {
         to = currentDate.endOf("day");
         break;
       case "week":
-        from = currentDate.startOf("week");
-        to = currentDate.endOf("week");
+        from = currentDate
+          .minus({ days: currentDate.weekday % 7 })
+          .startOf("day");
+        to = from.plus({ days: 6 }).endOf("day");
         break;
       case "month":
         // For month view, we fetch from start of first week of month to end of last week of month
-        from = currentDate.startOf("month").startOf("week");
-        to = currentDate.endOf("month").endOf("week");
+        const monthStart = currentDate.startOf("month");
+        const monthEnd = currentDate.endOf("month");
+        from = monthStart
+          .minus({ days: monthStart.weekday % 7 })
+          .startOf("day");
+        to = monthEnd.plus({ days: 6 - (monthEnd.weekday % 7) }).endOf("day");
         break;
       default:
-        from = currentDate.startOf("week");
-        to = currentDate.endOf("week");
+        from = currentDate
+          .minus({ days: currentDate.weekday % 7 })
+          .startOf("day");
+        to = from.plus({ days: 6 }).endOf("day");
     }
 
     return {
@@ -163,8 +171,10 @@ const CalendarPage: React.FC = () => {
       case "day":
         return currentDate.toLocaleString(DateTime.DATE_HUGE);
       case "week":
-        const start = currentDate.startOf("week");
-        const end = currentDate.endOf("week");
+        const start = currentDate
+          .minus({ days: currentDate.weekday % 7 })
+          .startOf("day");
+        const end = start.plus({ days: 6 }).endOf("day");
         if (start.month === end.month) {
           return `${start.monthLong} ${start.year}`;
         }
@@ -181,30 +191,33 @@ const CalendarPage: React.FC = () => {
         sx={{
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          alignItems: { sm: "center" },
           justifyContent: "space-between",
+          alignItems: { xs: "stretch", sm: "center" },
           gap: 2,
+          background: (theme) =>
+            theme.palette.mode === "dark"
+              ? "rgba(255, 255, 255, 0.05)"
+              : "rgba(0, 0, 0, 0.02)",
+          p: { xs: 2, md: 3 },
+          borderRadius: 2,
+          border: "1px solid",
+          borderColor: "divider",
         }}
       >
         <Box>
           <Typography
             variant="h4"
+            fontWeight="800"
             sx={{
-              fontWeight: "bold",
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              fontSize: { xs: "1.75rem", md: "2.125rem" },
+              fontSize: { xs: "1.5rem", md: "2rem" },
+              color: "text.primary",
+              letterSpacing: "-0.02em",
             }}
           >
             Class Schedule
           </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{ fontSize: { xs: "0.875rem", md: "1rem" } }}
-          >
-            Manage and view all upcoming class occurrences.
+          <Typography variant="body2" color="text.secondary">
+            Manage and view all upcoming class occurrences
           </Typography>
         </Box>
 
@@ -224,7 +237,10 @@ const CalendarPage: React.FC = () => {
             onChange={(e) => setSearch(e.target.value)}
             sx={{
               width: { xs: "100%", sm: 200, md: 250 },
-              display: { xs: "none", sm: "block" }, // Hide search on mobile header, maybe move it elsewhere
+              display: { xs: "none", sm: "block" },
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 1.5,
+              },
             }}
             InputProps={{
               startAdornment: (
@@ -237,14 +253,17 @@ const CalendarPage: React.FC = () => {
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            disableElevation
             onClick={() => setIsModalOpen(true)}
-            fullWidth={false}
             sx={{
+              px: 3,
+              py: 1,
+              borderRadius: 1.5,
               textTransform: "none",
               fontWeight: "bold",
-              px: { xs: 2, md: 3 },
-              whiteSpace: "nowrap",
+              boxShadow: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "0 4px 14px 0 rgba(0,0,0,0.39)"
+                  : "0 4px 14px 0 rgba(148, 58, 208, 0.39)",
             }}
           >
             Create Class
@@ -252,172 +271,132 @@ const CalendarPage: React.FC = () => {
         </Stack>
       </Box>
 
-      {/* Mobile Search - only visible on xs */}
-      <Box sx={{ display: { xs: "block", sm: "none" } }}>
-        <TextField
-          fullWidth
-          size="small"
-          placeholder="Search classes..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon color="action" />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Box>
-
-      {/* Navigation & Controls Section */}
+      {/* Control Bar */}
       <Paper
         elevation={0}
         sx={{
           p: 2,
-          bgcolor: "background.paper",
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "stretch", md: "center" },
+          justifyContent: "space-between",
+          gap: 2,
+          borderRadius: 1.5,
           border: "1px solid",
           borderColor: "divider",
-          borderRadius: 3,
+          background: (theme) =>
+            theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "white",
         }}
       >
-        <Box
+        <Stack
+          direction="row"
+          spacing={1}
           sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 2,
+            justifyContent: "center",
+            width: { xs: "100%", md: "auto" },
           }}
         >
-          <Stack
-            direction="row"
-            spacing={1}
+          <IconButton
+            onClick={() => handleNavigate("prev")}
+            size="small"
+            sx={{ border: "1px solid", borderColor: "divider" }}
+          >
+            <ChevronLeftIcon />
+          </IconButton>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => handleNavigate("today")}
             sx={{
-              alignItems: "center",
-              width: { xs: "100%", sm: "auto" },
-              justifyContent: { xs: "center", sm: "flex-start" },
+              textTransform: "none",
+              fontWeight: "bold",
+              borderRadius: 1.5,
+              px: 2,
             }}
           >
-            <IconButton
-              size="small"
-              onClick={() => handleNavigate("prev")}
-              disabled={isFetching}
-              sx={{ bgcolor: "action.hover" }}
-            >
-              <ChevronLeftIcon fontSize="small" />
-            </IconButton>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => handleNavigate("today")}
-              disabled={isFetching}
-              sx={{ px: 2, textTransform: "none" }}
-            >
-              Today
-            </Button>
-            <IconButton
-              size="small"
-              onClick={() => handleNavigate("next")}
-              disabled={isFetching}
-              sx={{ bgcolor: "action.hover" }}
-            >
-              <ChevronRightIcon fontSize="small" />
-            </IconButton>
-            <Typography
-              variant="h6"
-              sx={{
-                ml: { xs: 1, sm: 2 },
-                fontWeight: "semibold",
-                color: "text.primary",
-                fontSize: { xs: "1rem", sm: "1.25rem" },
-                whiteSpace: "nowrap",
-              }}
-            >
-              {isLoading ? <Skeleton width={100} /> : getHeaderTitle()}
-            </Typography>
-            {isFetching && !isLoading && (
-              <RefreshIcon
-                sx={{ ml: 1, animation: "spin 1s linear infinite" }}
-                fontSize="small"
-                color="action"
-              />
-            )}
-          </Stack>
-
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{ width: { xs: "100%", sm: "auto" } }}
+            Today
+          </Button>
+          <IconButton
+            onClick={() => handleNavigate("next")}
+            size="small"
+            sx={{ border: "1px solid", borderColor: "divider" }}
           >
-            <ToggleButtonGroup
-              value={displayMode}
-              exclusive
-              onChange={handleDisplayModeChange}
-              size="small"
-              disabled={isFetching}
-              sx={{
-                bgcolor: "action.hover",
-                p: 0.5,
-                borderRadius: 2,
-                "& .MuiToggleButton-root": {
-                  border: "none",
-                  px: 2,
-                  borderRadius: 1.5,
-                  "&.Mui-selected": {
-                    bgcolor: "background.paper",
-                    color: "primary.main",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                    "&:hover": {
-                      bgcolor: "background.paper",
-                    },
-                  },
-                },
-              }}
-            >
-              <ToggleButton value="calendar">
-                <CalendarIcon sx={{ mr: 1, fontSize: 18 }} />
-                Calendar
-              </ToggleButton>
-              <ToggleButton value="list">
-                <ListIcon sx={{ mr: 1, fontSize: 18 }} />
-                List
-              </ToggleButton>
-            </ToggleButtonGroup>
+            <ChevronRightIcon />
+          </IconButton>
+          <Typography
+            variant="h6"
+            sx={{
+              ml: 2,
+              fontWeight: "bold",
+              minWidth: { md: 200 },
+              textAlign: "center",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {getHeaderTitle()}
+          </Typography>
+        </Stack>
 
-            <ToggleButtonGroup
-              value={view}
-              exclusive
-              onChange={handleViewChange}
-              size="small"
-              disabled={isFetching}
-              fullWidth={isMobile}
-              sx={{
-                bgcolor: "action.hover",
-                p: 0.5,
-                borderRadius: 2,
-                width: { xs: "100%", sm: "auto" },
-                "& .MuiToggleButton-root": {
-                  border: "none",
-                  flex: { xs: 1, sm: "initial" },
-                  px: { xs: 1, sm: 2 },
-                  borderRadius: 1.5,
-                  "&.Mui-selected": {
-                    bgcolor: "primary.main",
-                    color: "primary.contrastText",
-                    "&:hover": {
-                      bgcolor: "primary.dark",
-                    },
-                  },
-                },
-              }}
-            >
-              <ToggleButton value="day">Day</ToggleButton>
-              <ToggleButton value="week">Week</ToggleButton>
-              <ToggleButton value="month">Month</ToggleButton>
-            </ToggleButtonGroup>
-          </Stack>
-        </Box>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            justifyContent: "center",
+            width: { xs: "100%", md: "auto" },
+          }}
+        >
+          <ToggleButtonGroup
+            value={view}
+            exclusive
+            onChange={handleViewChange}
+            size="small"
+            sx={{
+              "& .MuiToggleButton-root": {
+                textTransform: "none",
+                fontWeight: "bold",
+                px: 2,
+                borderRadius: 1.5,
+              },
+            }}
+          >
+            <ToggleButton value="day">Day</ToggleButton>
+            <ToggleButton value="week">Week</ToggleButton>
+            <ToggleButton value="month">Month</ToggleButton>
+          </ToggleButtonGroup>
+
+          <Box
+            sx={{ borderLeft: "1px solid", borderColor: "divider", mx: 1 }}
+          />
+
+          <ToggleButtonGroup
+            value={displayMode}
+            exclusive
+            onChange={handleDisplayModeChange}
+            size="small"
+            sx={{
+              "& .MuiToggleButton-root": {
+                borderRadius: 1.5,
+              },
+            }}
+          >
+            <ToggleButton value="calendar">
+              <CalendarIcon fontSize="small" />
+            </ToggleButton>
+            <ToggleButton value="list">
+              <ListIcon fontSize="small" />
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+          <IconButton
+            onClick={() => refetch()}
+            size="small"
+            sx={{ border: "1px solid", borderColor: "divider" }}
+          >
+            <RefreshIcon fontSize="small" />
+          </IconButton>
+        </Stack>
       </Paper>
 
       {/* Calendar Content */}

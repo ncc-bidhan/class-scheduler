@@ -34,12 +34,30 @@ const LocationStaffSection: React.FC<LocationStaffSectionProps> = ({
   isRoomsLoading,
 }) => {
   return (
-    <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+    <Paper
+      elevation={0}
+      sx={{
+        p: 3,
+        borderRadius: 2,
+        border: "1px solid",
+        borderColor: "divider",
+        background: (theme) =>
+          theme.palette.mode === "dark"
+            ? "rgba(255,255,255,0.02)"
+            : "rgba(0,0,0,0.01)",
+      }}
+    >
       <Typography
         variant="subtitle1"
-        fontWeight={600}
+        fontWeight="800"
         gutterBottom
         color="primary"
+        sx={{
+          textTransform: "uppercase",
+          fontSize: "0.75rem",
+          letterSpacing: "0.1em",
+          mb: 2,
+        }}
       >
         Location & Staff
       </Typography>

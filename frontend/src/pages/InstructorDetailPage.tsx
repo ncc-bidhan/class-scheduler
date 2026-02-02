@@ -30,7 +30,7 @@ const InstructorDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box>
         <Skeleton variant="text" width={300} height={60} sx={{ mb: 2 }} />
         <Skeleton variant="rectangular" height={300} sx={{ borderRadius: 3 }} />
       </Box>
@@ -39,7 +39,7 @@ const InstructorDetailPage: React.FC = () => {
 
   if (error || !response) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box>
         <Alert severity="error">
           Error loading instructor details. The instructor might not exist or
           there was a connection error.
@@ -57,7 +57,8 @@ const InstructorDetailPage: React.FC = () => {
 
   const instructor = response.data;
   const instructorBranches = instructor.branchIds.filter(
-    (b): b is { _id: string; name: string } => typeof b === "object" && b !== null,
+    (b): b is { _id: string; name: string } =>
+      typeof b === "object" && b !== null,
   );
 
   const renderInfoItem = (
@@ -91,73 +92,172 @@ const InstructorDetailPage: React.FC = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", p: { xs: 2, md: 3 } }}>
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={() => navigate(-1)}
-        sx={{ mb: 3 }}
+        sx={{
+          mb: 4,
+          color: "text.secondary",
+          "&:hover": { background: "transparent", color: "primary.main" },
+          textTransform: "none",
+          fontWeight: "bold",
+        }}
       >
-        Back
+        Back to Instructors
       </Button>
 
       <Paper
         elevation={0}
         sx={{
-          p: { xs: 3, md: 4 },
-          borderRadius: 3,
+          p: { xs: 3, md: 5 },
+          borderRadius: 1.5,
           border: "1px solid",
           borderColor: "divider",
+          background: (theme) =>
+            theme.palette.mode === "dark"
+              ? "linear-gradient(145deg, #1e1e1e 0%, #121212 100%)"
+              : "linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)",
+          boxShadow: "0 10px 40px rgba(0,0,0,0.04)",
         }}
       >
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" fontWeight="bold" gutterBottom>
+        <Box sx={{ mb: 5 }}>
+          <Typography
+            variant="h3"
+            fontWeight="800"
+            sx={{
+              fontSize: { xs: "2rem", md: "2.5rem" },
+              letterSpacing: "-0.02em",
+              mb: 1,
+            }}
+          >
             {instructor.name}
           </Typography>
-          <Divider sx={{ my: 2 }} />
+          <Typography variant="body1" color="text.secondary">
+            Professional Instructor Profile
+          </Typography>
         </Box>
 
-        <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
+        <Grid container spacing={5}>
+          <Grid item xs={12} md={6}>
+            <Typography
+              variant="subtitle1"
+              fontWeight="800"
+              sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
+            >
               Contact Information
             </Typography>
 
-            {renderInfoItem(<EmailIcon />, "Email", instructor.email)}
-            {renderInfoItem(<PhoneIcon />, "Phone", instructor.phone)}
+            <Box
+              sx={{
+                p: 3,
+                borderRadius: 1.5,
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.03)"
+                    : "rgba(0,0,0,0.01)",
+                border: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              {renderInfoItem(<EmailIcon />, "Email", instructor.email)}
+              {renderInfoItem(<PhoneIcon />, "Phone", instructor.phone)}
+            </Box>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
+          <Grid item xs={12} md={6}>
+            <Typography
+              variant="subtitle1"
+              fontWeight="800"
+              sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
+            >
               Assigned Branches
             </Typography>
 
-            {renderInfoItem(
-              <BranchIcon />,
-              "Branches",
-              instructorBranches.length > 0 ? (
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  {instructorBranches.map((branch) => (
-                    <Chip
-                      key={branch._id}
-                      label={branch.name}
-                      size="small"
-                      onClick={() => navigate(`/branches/${branch._id}`)}
-                      sx={{ cursor: "pointer" }}
-                    />
-                  ))}
-                </Stack>
-              ) : (
-                "No branches assigned"
-              ),
-            )}
+            <Box
+              sx={{
+                p: 3,
+                borderRadius: 1.5,
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.03)"
+                    : "rgba(0,0,0,0.01)",
+                border: "1px solid",
+                borderColor: "divider",
+                minHeight: "100%",
+              }}
+            >
+              {renderInfoItem(
+                <BranchIcon />,
+                "Active Locations",
+                instructorBranches.length > 0 ? (
+                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                    {instructorBranches.map((branch) => (
+                      <Chip
+                        key={branch._id}
+                        label={branch.name}
+                        size="medium"
+                        onClick={() => navigate(`/branches/${branch._id}`)}
+                        sx={{
+                          cursor: "pointer",
+                          borderRadius: 1,
+                          fontWeight: "bold",
+                          bgcolor: (theme) =>
+                            theme.palette.mode === "dark"
+                              ? "primary.dark"
+                              : "primary.light",
+                          color: (theme) =>
+                            theme.palette.mode === "dark"
+                              ? "white"
+                              : "primary.main",
+                          "&:hover": {
+                            bgcolor: "primary.main",
+                            color: "white",
+                          },
+                        }}
+                      />
+                    ))}
+                  </Stack>
+                ) : (
+                  "No branches assigned"
+                ),
+              )}
+            </Box>
           </Grid>
 
-          <Grid size={{ xs: 12 }}>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
-              Professional Details
+          <Grid item xs={12}>
+            <Typography
+              variant="subtitle1"
+              fontWeight="800"
+              sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}
+            >
+              Professional Biography
             </Typography>
 
-            {renderInfoItem(<BioIcon />, "Biography", instructor.bio)}
+            <Box
+              sx={{
+                p: 3,
+                borderRadius: 1.5,
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.03)"
+                    : "rgba(0,0,0,0.01)",
+                border: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  lineHeight: 1.8,
+                  color: "text.secondary",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {instructor.bio ||
+                  "No professional biography provided for this instructor."}
+              </Typography>
+            </Box>
           </Grid>
         </Grid>
       </Paper>

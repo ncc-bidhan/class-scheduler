@@ -9,7 +9,6 @@ export interface IClass extends Document {
   branchId: mongoose.Types.ObjectId;
   instructorId: mongoose.Types.ObjectId;
   roomId: mongoose.Types.ObjectId;
-  timezone: string;
   durationMinutes: number;
   capacity: number;
   waitlistCapacity: number;
@@ -71,7 +70,6 @@ const ClassSchema = new Schema<IClass>(
       index: true,
     },
 
-    timezone: { type: String, required: true, trim: true },
     durationMinutes: { type: Number, required: true },
 
     capacity: { type: Number, required: true },

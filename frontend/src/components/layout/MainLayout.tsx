@@ -8,12 +8,13 @@ import { DRAWER_WIDTH, COLLAPSED_DRAWER_WIDTH } from "./layout.constants";
 const MainLayout: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [open, setOpen] = useState(!isMobile);
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
+  const [open, setOpen] = useState(isLargeScreen && !isMobile);
 
   // Update open state when screen size changes
   useEffect(() => {
-    setOpen(!isMobile);
-  }, [isMobile]);
+    setOpen(isLargeScreen && !isMobile);
+  }, [isLargeScreen, isMobile]);
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -28,26 +29,36 @@ const MainLayout: React.FC = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: { xs: 2, md: 3 },
-          mt: { xs: 8, md: 12 }, // 96px (16px top + 64px height + 16px gap)
+          mt: { xs: 8, md: 12 },
+          px: { xs: 2, md: 3 },
+          py: { xs: 2, md: 3 },
           height: {
-            xs: "calc(100vh - 64px)", // 100vh - (0px top + 56px height + 8px gap)
-            md: "calc(100vh - 96px)", // 100vh - (16px top + 64px height + 16px gap)
+            xs: "calc(100vh - 64px)",
+            md: "calc(100vh - 96px)",
           },
           overflow: "auto",
           display: "flex",
           flexDirection: "column",
-          bgcolor: "background.default",
+          bgcolor: (theme) =>
+            theme.palette.mode === "dark" ? "background.default" : "#f4f7fe",
           transition: (theme) =>
-            theme.transitions.create(["width", "margin"], {
+            theme.transitions.create(["width", "margin", "padding"], {
               easing: theme.transitions.easing.sharp,
               duration: open
                 ? theme.transitions.duration.enteringScreen
                 : theme.transitions.duration.leavingScreen,
             }),
+          position: "relative",
         }}
       >
-        <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+        <Box
+          sx={{
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+          }}
+        >
           <Outlet />
         </Box>
       </Box>

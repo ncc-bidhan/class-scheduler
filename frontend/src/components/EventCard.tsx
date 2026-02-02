@@ -23,13 +23,25 @@ const EventCard: React.FC<EventCardProps> = ({ occurrence, isCompact }) => {
       sx={{
         minWidth: 0,
         bgcolor: (theme) =>
-          theme.palette.mode === "dark" ? "primary.dark" : "primary.light",
-        color: "primary.contrastText",
+          theme.palette.mode === "dark"
+            ? "rgba(10, 25, 41, 0.7)"
+            : "rgba(25, 118, 210, 0.08)",
+        color: (theme) =>
+          theme.palette.mode === "dark" ? "primary.light" : "primary.main",
         border: "1px solid",
-        borderColor: "primary.main",
-        transition: "filter 0.2s",
+        borderColor: (theme) =>
+          theme.palette.mode === "dark" ? "primary.main" : "primary.light",
+        borderRadius: 1.5,
+        transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+        backdropFilter: "blur(4px)",
         "&:hover": {
-          filter: "brightness(1.1)",
+          transform: "translateY(-1px)",
+          boxShadow: (theme) => `0 4px 12px ${theme.palette.primary.main}20`,
+          borderColor: "primary.main",
+          bgcolor: (theme) =>
+            theme.palette.mode === "dark"
+              ? "rgba(10, 25, 41, 0.9)"
+              : "rgba(25, 118, 210, 0.12)",
         },
         cursor: "pointer",
       }}

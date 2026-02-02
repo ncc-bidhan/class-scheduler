@@ -91,6 +91,13 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
               ? DRAWER_WIDTH
               : COLLAPSED_DRAWER_WIDTH,
           boxSizing: "border-box",
+          bgcolor: "background.paper",
+          borderRight: "1px solid",
+          borderColor: "divider",
+          boxShadow: (theme) =>
+            theme.palette.mode === "dark"
+              ? "10px 0 30px rgba(0,0,0,0.3)"
+              : "10px 0 30px rgba(0,0,0,0.02)",
           transition: (theme) =>
             theme.transitions.create("width", {
               easing: theme.transitions.easing.sharp,
@@ -110,8 +117,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          px: open ? [1.5] : 0,
+          px: open ? 2 : 0,
           minHeight: "80px !important",
+          borderBottom: "1px solid",
+          borderColor: "divider",
         }}
       >
         {open ? (
@@ -122,11 +131,28 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
               alt="ClassFlow"
               sx={{
                 height: 60,
-                ml: 1,
+                transition: "all 0.3s ease",
+                filter: (theme) =>
+                  theme.palette.mode === "dark" ? "brightness(1.2)" : "none",
               }}
             />
             <Box sx={{ flexGrow: 1 }} />
-            <IconButton onClick={onToggle} sx={{ color: unselectedColor }}>
+            <IconButton
+              onClick={onToggle}
+              sx={{
+                color: unselectedColor,
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.05)"
+                    : "rgba(0,0,0,0.03)",
+                "&:hover": {
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.1)"
+                      : "rgba(0,0,0,0.06)",
+                },
+              }}
+            >
               <ChevronLeftIcon />
             </IconButton>
           </>
@@ -136,85 +162,106 @@ const Sidebar: React.FC<SidebarProps> = ({ open, isMobile, onToggle }) => {
             src="/favicon.png"
             alt="ClassFlow Favicon"
             sx={{
-              height: 40,
-              width: 40,
+              height: 32,
+              width: 32,
+              transition: "all 0.3s ease",
             }}
           />
         )}
       </Toolbar>
-      <Divider />
-      <List sx={{ position: "relative", p: 0 }}>
+      <List sx={{ position: "relative", p: 0, mt: 2 }}>
         {activeIndex !== -1 && (
           <Box
             sx={{
               position: "absolute",
-              left: 0,
-              right: 0,
+              left: 8,
+              right: 8,
               top: 0,
               height: SIDEBAR_ITEM_HEIGHT,
-              bgcolor: isDarkMode
-                ? "rgba(144, 202, 249, 0.12)"
-                : "rgba(148, 58, 208, 0.08)",
-              borderLeft: `4px solid ${isDarkMode ? "#90caf9" : "#943ad0"}`,
+              bgcolor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(25, 118, 210, 0.12)"
+                  : "rgba(148, 58, 208, 0.08)",
+              borderRadius: 2,
               transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
               transform: `translateY(${activeIndex * SIDEBAR_ITEM_HEIGHT}px)`,
               zIndex: 0,
               pointerEvents: "none",
               willChange: "transform",
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                left: -8,
+                top: "20%",
+                bottom: "20%",
+                width: 4,
+                bgcolor: "primary.main",
+                borderRadius: "0 4px 4px 0",
+              },
             }}
           />
         )}
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              onClick={() => handleNavigation(item.path)}
-              selected={location.pathname === item.path}
-              sx={{
-                height: SIDEBAR_ITEM_HEIGHT,
-                justifyContent: open ? "initial" : "center",
-                px: open ? 2.5 : 1.5,
-                py: 2,
-                bgcolor: "transparent !important",
-                "&:hover": {
-                  bgcolor: isDarkMode
-                    ? "rgba(255, 255, 255, 0.05) !important"
-                    : "rgba(0, 0, 0, 0.04) !important",
-                },
-              }}
+        {menuItems.map((item) => {
+          const isActive =
+            location.pathname === item.path ||
+            (item.path !== "/" && location.pathname.startsWith(item.path));
+          return (
+            <ListItem
+              key={item.text}
+              disablePadding
+              sx={{ display: "block", px: 1 }}
             >
-              <ListItemIcon
+              <ListItemButton
+                onClick={() => handleNavigation(item.path)}
+                selected={isActive}
                 sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : 0,
-                  justifyContent: "center",
-                  zIndex: 1,
-                  color:
-                    location.pathname === item.path
-                      ? isDarkMode
-                        ? "common.white"
-                        : "primary.main"
-                      : unselectedColor,
+                  height: SIDEBAR_ITEM_HEIGHT,
+                  justifyContent: open ? "initial" : "center",
+                  px: open ? 2 : 1.5,
+                  borderRadius: 2,
+                  mb: 0.5,
+                  bgcolor: "transparent !important",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor: (theme) =>
+                      theme.palette.mode === "dark"
+                        ? "rgba(255, 255, 255, 0.04) !important"
+                        : "rgba(0, 0, 0, 0.02) !important",
+                    transform: "translateX(4px)",
+                  },
                 }}
               >
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.text}
-                sx={{
-                  display: open ? "block" : "none",
-                  opacity: open ? 1 : 0,
-                  zIndex: 1,
-                  color:
-                    location.pathname === item.path
-                      ? isDarkMode
-                        ? "common.white"
-                        : "primary.main"
-                      : unselectedColor,
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 2 : 0,
+                    justifyContent: "center",
+                    zIndex: 1,
+                    transition: "all 0.2s ease",
+                    color: isActive ? "primary.main" : unselectedColor,
+                    transform: isActive ? "scale(1.1)" : "none",
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  primaryTypographyProps={{
+                    fontWeight: isActive ? 800 : 500,
+                    fontSize: "0.9rem",
+                    letterSpacing: isActive ? "0.01em" : "0",
+                  }}
+                  sx={{
+                    display: open ? "block" : "none",
+                    opacity: open ? 1 : 0,
+                    zIndex: 1,
+                    color: isActive ? "text.primary" : unselectedColor,
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
       </List>
     </Drawer>
   );

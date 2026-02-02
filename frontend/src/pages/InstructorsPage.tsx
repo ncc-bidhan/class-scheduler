@@ -10,6 +10,7 @@ import {
   Box,
   Divider,
   MenuItem,
+  Grid,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
@@ -34,11 +35,17 @@ const modalStyle = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: { xs: "90%", sm: 450 },
+  width: { xs: "95%", sm: 550 },
   bgcolor: "background.paper",
-  boxShadow: 24,
-  p: { xs: 2, sm: 4 },
-  borderRadius: 2,
+  boxShadow: (theme: any) =>
+    theme.palette.mode === "dark"
+      ? "0 24px 80px rgba(0,0,0,0.5)"
+      : "0 24px 80px rgba(148, 58, 208, 0.12)",
+  p: { xs: 4, sm: 6 },
+  borderRadius: 4,
+  border: "1px solid",
+  borderColor: "divider",
+  outline: "none",
 };
 
 export function InstructorsPage() {
@@ -63,8 +70,10 @@ export function InstructorsPage() {
     page,
     limit,
   });
-  const [triggerGetBranches, { data: branchesResponse, isLoading: isBranchesLoading }] =
-    useLazyGetBranchesQuery();
+  const [
+    triggerGetBranches,
+    { data: branchesResponse, isLoading: isBranchesLoading },
+  ] = useLazyGetBranchesQuery();
   const [createInstructor] = useCreateInstructorMutation();
   const [updateInstructor] = useUpdateInstructorMutation();
   const [deleteInstructor] = useDeleteInstructorMutation();
@@ -180,32 +189,58 @@ export function InstructorsPage() {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
       <Box
         sx={{
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
           justifyContent: "space-between",
-          alignItems: { xs: "flex-start", sm: "center" },
+          alignItems: { xs: "stretch", sm: "center" },
           gap: 2,
           mb: 4,
+          background: (theme) =>
+            theme.palette.mode === "dark"
+              ? "rgba(255, 255, 255, 0.05)"
+              : "rgba(0, 0, 0, 0.02)",
+          p: { xs: 2, md: 3 },
+          borderRadius: 2,
+          border: "1px solid",
+          borderColor: "divider",
         }}
       >
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          sx={{ fontSize: { xs: "1.75rem", md: "2.125rem" } }}
-        >
-          Manage Instructors
-        </Typography>
+        <Box>
+          <Typography
+            variant="h4"
+            fontWeight="800"
+            sx={{
+              fontSize: { xs: "1.5rem", md: "2rem" },
+              color: "text.primary",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Instructors
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Manage your teaching staff and their assignments
+          </Typography>
+        </Box>
         <Button
           variant="contained"
           startIcon={<IconPlus />}
           onClick={() => handleOpenModal()}
-          fullWidth={false}
-          sx={{ width: { xs: "100%", sm: "auto" } }}
+          sx={{
+            px: 3,
+            py: 1,
+            borderRadius: 1.5,
+            textTransform: "none",
+            fontWeight: "bold",
+            boxShadow: (theme) =>
+              theme.palette.mode === "dark"
+                ? "0 4px 14px 0 rgba(0,0,0,0.39)"
+                : "0 4px 14px 0 rgba(148, 58, 208, 0.39)",
+          }}
         >
-          Add Instructor
+          Add New Instructor
         </Button>
       </Box>
 
@@ -229,69 +264,97 @@ export function InstructorsPage() {
         }
       />
 
-      <Modal open={opened} onClose={() => setOpened(false)}>
+      <Modal
+        open={opened}
+        onClose={() => setOpened(false)}
+        closeAfterTransition
+      >
         <Box sx={modalStyle}>
-          <Typography variant="h6" component="h2" mb={3}>
-            {editingInstructor ? "Edit Instructor" : "Add Instructor"}
+          <Typography variant="h5" fontWeight="800" mb={1}>
+            {editingInstructor ? "Edit Instructor" : "Add New Instructor"}
           </Typography>
-          <Divider sx={{ mb: 3 }} />
+          <Typography variant="body2" color="text.secondary" mb={4}>
+            {editingInstructor
+              ? "Update the details of your staff member"
+              : "Fill in the information to add a new instructor to your team"}
+          </Typography>
+
           <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
               <TextField
-                label="Name"
+                label="Full Name"
                 name="name"
                 fullWidth
                 required
+                variant="outlined"
                 value={formData.name}
                 onChange={handleInputChange}
+                sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5 } }}
               />
               <TextField
                 label="Bio"
                 name="bio"
                 fullWidth
                 multiline
-                rows={2}
+                rows={3}
+                variant="outlined"
                 value={formData.bio}
                 onChange={handleInputChange}
+                sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5 } }}
               />
-              <TextField
-                label="Email"
-                name="email"
-                fullWidth
-                value={formData.email}
-                onChange={handleInputChange}
-              />
-              <TextField
-                label="Phone"
-                name="phone"
-                fullWidth
-                value={formData.phone}
-                onChange={handleInputChange}
-              />
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Email Address"
+                    name="email"
+                    fullWidth
+                    variant="outlined"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5 } }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Phone Number"
+                    name="phone"
+                    fullWidth
+                    variant="outlined"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5 } }}
+                  />
+                </Grid>
+              </Grid>
+
               <TextField
                 select
-                label="Branches"
+                label="Assign Branches"
+                name="branchIds"
                 fullWidth
                 SelectProps={{
                   multiple: true,
-                  onOpen: () => triggerGetBranches(),
+                  value: formData.branchIds,
+                  onChange: handleBranchChange,
+                  onOpen: () => {
+                    if (!branchesResponse)
+                      triggerGetBranches({ page: 1, limit: 100 });
+                  },
                 }}
-                value={formData.branchIds}
-                onChange={handleBranchChange}
-                disabled={isBranchesLoading}
+                variant="outlined"
+                sx={{ "& .MuiOutlinedInput-root": { borderRadius: 1.5 } }}
               >
                 {isBranchesLoading ? (
                   <MenuItem disabled>Loading branches...</MenuItem>
-                ) : branchesResponse?.data && branchesResponse.data.length > 0 ? (
-                  branchesResponse.data.map((branch: Branch) => (
+                ) : (
+                  branchesResponse?.data.map((branch: Branch) => (
                     <MenuItem key={branch._id} value={branch._id}>
                       {branch.name}
                     </MenuItem>
                   ))
-                ) : (
-                  <MenuItem disabled>No branches found</MenuItem>
                 )}
               </TextField>
+
               <Box
                 sx={{
                   display: "flex",
@@ -300,17 +363,30 @@ export function InstructorsPage() {
                   mt: 2,
                 }}
               >
-                <Button onClick={() => setOpened(false)} color="inherit">
+                <Button
+                  onClick={() => setOpened(false)}
+                  color="inherit"
+                  sx={{ textTransform: "none", fontWeight: "bold" }}
+                >
                   Cancel
                 </Button>
-                <Button type="submit" variant="contained">
-                  {editingInstructor ? "Update" : "Create"}
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{
+                    px: 4,
+                    borderRadius: 1.5,
+                    textTransform: "none",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {editingInstructor ? "Save Changes" : "Create Instructor"}
                 </Button>
               </Box>
             </Stack>
           </form>
         </Box>
       </Modal>
-    </Container>
+    </Box>
   );
 }
