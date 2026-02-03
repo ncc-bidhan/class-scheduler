@@ -192,6 +192,3 @@ The system handles complex scheduling using a "Template & Expansion" model:
 - **RTK Query**: Efficiently manages API state and caching on the frontend, reducing redundant network calls for static resources (branches, instructors).
 - **MUI & Framer Motion**: Provides a professional, responsive, and interactive user experience.
 
-## � License
-
-This project is licensed under the ISC License.
